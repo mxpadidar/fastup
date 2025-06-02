@@ -1,0 +1,41 @@
+[project]
+name = "fastup"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+  "fastapi>=0.115.12",
+  "uvicorn>=0.34.2",
+]
+
+[dependency-groups]
+dev = [
+  "httpx>=0.28.1",
+  "pytest>=8.3.5",
+]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+exclude = [
+  "**/__pycache__",
+  ".cache/",
+  ".venv/",
+]
+defineConstant = { DEBUG = true }
+
+reportMissingImports = "error"
+reportMissingTypeStubs = false
+
+pythonVersion = "3.13"
+pythonPlatform = "Linux"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+cache_dir = ".cache/pytest"
+
+[tool.ruff]
+cache-dir = ".cache/ruff"
+
