@@ -6,28 +6,27 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
   "fastapi>=0.115.12",
+  "psycopg>=3.2.9",
+  "python-dotenv>=1.1.0",
+  "sqlalchemy>=2.0.41",
   "uvicorn>=0.34.2",
 ]
 
 [dependency-groups]
 dev = [
   "httpx>=0.28.1",
+  "mypy>=1.16.0",
+  "pyright>=1.1.401",
   "pytest>=8.3.5",
 ]
 
 [tool.pyright]
+typeCheckingMode = "standard"
+include = ["fastup", "tests"]
 venvPath = "."
 venv = ".venv"
-exclude = [
-  "**/__pycache__",
-  ".cache/",
-  ".venv/",
-]
-defineConstant = { DEBUG = true }
-
 reportMissingImports = "error"
 reportMissingTypeStubs = false
-
 pythonVersion = "3.13"
 pythonPlatform = "Linux"
 
@@ -39,3 +38,5 @@ cache_dir = ".cache/pytest"
 [tool.ruff]
 cache-dir = ".cache/ruff"
 
+[tool.mypy]
+cache_dir = ".cache/mypy"

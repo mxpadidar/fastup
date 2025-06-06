@@ -1,17 +1,33 @@
-import tomllib
 import pathlib
-from functools import lru_cache
 
+from dotenv import load_dotenv
 
-@lru_cache()
-def load_config(path: pathlib.Path) -> dict:
-    with open(path, "rb") as f:
-        return tomllib.load(f)
+from fastup.core.utils import (
+    get_bool_env,
+    get_database_dsn,
+    get_env_variable,
+    load_toml,
+)
 
+base_dir = pathlib.Path(__file__).parent.parent.parent
 
-base_dir = pathlib.Path(__file__).resolve().parent.parent.parent
+confile = base_dir / "config.toml"
 
+if not confile.exists():
+    raise RuntimeError
 
-config = load_config(base_dir / "config.toml")
+env = get_env_variable("ENVIRONMENT", "dev")
 
-version = config["fastup"]["version"]
+if not env == "prod":
+    load_dotenv(base_dir / ".env")
+
+try:
+    config = load_toml(confile)
+except Exception as e:
+    raise RuntimeError(f"Failed to load configuration file: {e}")
+
+debug = get_bool_env("DEBUG", config["app"]["debug"])
+
+version = config["app"]["version"]
+
+database_dsn = get_database_dsn(**config["database"])
