@@ -13,3 +13,12 @@ class FileDoesNotExistErr(BaseErr):
         super().__init__(
             msg=f"file does not exist in: {path.as_posix()}", context=context
         )
+
+
+class ValidationErr(BaseErr):
+    def __init__(
+        self,
+        msg: str = "invalid data",
+        context: dict | None = None,
+    ) -> None:
+        super().__init__(msg=msg, context=context)
