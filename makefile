@@ -1,0 +1,23 @@
+.PHONY: runserver test lint type-check all clean tree
+runserver:
+	@uv run python -m fastup.app
+
+test:
+	@uv run pytest tests/
+
+lint:
+	@uv run ruff check fastup/ tests/ --fix
+
+type-check:
+	@uv run pyright fastup/ tests/
+
+all: test lint type-check
+
+clean:
+	@for name in __pycache__ .cache .venv; do \
+		echo "Deleting $$name..."; \
+		find . -name "$$name" -exec rm -rf {} + ;\
+	done
+
+tree:
+	@tree -a --dirsfirst -I "__pycache__|.git|.cache|.venv"
