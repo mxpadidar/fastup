@@ -13,7 +13,7 @@ logger = get_logger("fastup.envlib")
 def loadenv(path: pathlib.Path) -> None:
     """load environment variables from a .env file."""
 
-    logger.info("loading dotenv file from %s", path)
+    logger.debug("loading dotenv file from %s", path)
     if not path.exists():
         logger.error("dotenv file not found at %s", path)
         raise NotFoundErr
