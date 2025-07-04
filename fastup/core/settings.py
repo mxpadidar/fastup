@@ -30,3 +30,13 @@ log_level = config["app"].get("log_level", "info")
 
 server_host = config["server"]["host"]
 server_port = config["server"]["port"]
+
+db_pool_size = config["database"]["pool_size"]
+db_max_overflow = config["database"]["max_overflow"]
+db_pool_timeout = config["database"]["pool_timeout"]
+
+db_host = envlib.getenv("DB_HOST", "127.0.0.1")
+db_port = envlib.getenv("DB_PORT", 5432)
+db_user = envlib.getenv("DB_USER", "postgres")
+db_password = envlib.getenv("DB_PASSWORD", "password")
+db_name = envlib.getenv("DB_NAME", "fastup")
