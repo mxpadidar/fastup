@@ -1,0 +1,7 @@
+[project]
+name = "fastup"
+version = "0.1.0"
+description = "fastapi starter kit for clean, scalable api development."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
