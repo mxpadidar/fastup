@@ -12,7 +12,10 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28.1",
     "pyright>=1.1.402",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
 ]
 
 [tool.uv]
@@ -23,3 +26,26 @@ pythonVersion = "3.13"
 venvPath = "."
 venv = ".venv"
 
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "--maxfail=1 --cov-report=term --cov-report=html"
+cache_dir = ".cache/pytest"
+
+[tool.coverage.run]
+data_file = ".cache/coverage/.coverage"
+branch = true
+
+[tool.coverage.html]
+directory = ".cache/coverage/html"
+
+[tool.coverage.xml]
+output = ".cache/coverage/coverage.xml"
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "pass",
+    "...",
+]
