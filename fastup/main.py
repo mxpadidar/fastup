@@ -8,10 +8,10 @@ app = FastAPI()
 app.include_router(router)
 
 
-def main() -> None:
+def main() -> None:  # pragma: no cover
     """main entry point for the fastapi application."""
     uvicorn.run("fastup.main:app", host="127.0.0.1", port=8000, reload=True)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()
