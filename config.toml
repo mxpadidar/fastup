@@ -2,7 +2,5 @@
 name = "fastup"
 version = "0.1.0"
 debug = true
-
-[server]
 host = "127.0.0.1"
 port = 8000

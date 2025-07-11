@@ -5,8 +5,6 @@ import tomllib
 from fastup.core.errors import ServerErr
 from fastup.infra import envlib
 
-logging.basicConfig(format="%(levelname)s:   %(message)s", level=logging.DEBUG)
-
 logger = logging.getLogger(__name__)
 
 base_dir = pathlib.Path(__file__).resolve().parent.parent.parent
@@ -30,7 +28,7 @@ except FileNotFoundError as e:
 
 secret_key: str = envlib.getenv("SECRET_KEY", "default_secret_key")
 
-log_level: str = config["app"].get("log_level", "info")
+log_level: str = config["app"].get("log_level", "debug")
 debug: bool = config["app"].get("debug", False)
 
 app_title: str = config["app"]["name"]
