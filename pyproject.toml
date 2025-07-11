@@ -4,4 +4,22 @@ version = "0.1.0"
 description = "fastapi starter kit for clean, scalable api development."
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+
+dependencies = [
+    "fastapi>=0.115.14",
+    "uvicorn>=0.35.0",
+]
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.402",
+]
+
+[tool.uv]
+default-groups = ["dev"]
+
+[tool.pyright]
+pythonVersion = "3.13"
+venvPath = "."
+venv = ".venv"
+
