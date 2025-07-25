@@ -16,6 +16,15 @@ try:
 except (FileParseErr, FileNotFoundError) as e:  # pragma: no cover
     raise RuntimeError("failed to parse configuration file") from e
 
+try:
+    LOG_CONFIG = utils.parse_toml_file(
+        utils.get_env_path(
+            "FASTUP_LOG_CONF_PATH", BASE_DIR / "configs" / "logging.toml"
+        )
+    )
+except (FileParseErr, FileNotFoundError) as e:  # pragma: no cover
+    raise RuntimeError("failed to parse logging configuration file") from e
+
 DEBUG = CONFDICT["app"]["debug"]
 APP_NAME = CONFDICT["app"]["name"]
 APP_VERSION = CONFDICT["app"]["version"]
