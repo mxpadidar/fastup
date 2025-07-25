@@ -22,3 +22,11 @@ APP_NAME = CONFDICT["app"]["name"]
 
 APP_VERSION = CONFDICT["app"]["version"]
 
+try:
+    LOG_CONFIG = utils.parse_toml_file(
+        utils.resolve_path_from_env(
+            "FASTUP_LOG_CONF_PATH", BASE_DIR / "configs" / "logging.toml"
+        )
+    )
+except FileParseErr as e:
+    raise RuntimeError("failed to parse logging configuration file") from e
