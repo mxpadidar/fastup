@@ -2,3 +2,8 @@
 debug = true
 name = "fastup"
 version = "0.1.0"
+
+[database]
+max_overflow = 5
+pool_size = 10
+pool_timeout = "30s"
