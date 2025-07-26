@@ -24,7 +24,10 @@ push-main:
 
 test:
 	@echo "running tests..."
-	@uv run pytest tests --cov=fastup
+	@POSTGRES_USER=$(POSTGRES_USER) POSTGRES_PASSWORD=$(POSTGRES_PASSWORD) \
+	POSTGRES_PORT=$(POSTGRES_PORT) POSTGRES_HOST=$(POSTGRES_HOST) \
+	POSTGRES_DATABASE_NAME=$(POSTGRES_DATABASE_NAME) \
+	uv run pytest tests --cov=fastup
 
 lint:
 	@echo "running linter..."

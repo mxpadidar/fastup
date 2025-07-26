@@ -39,3 +39,6 @@ DB_URL = "{driver}://{user}:{password}@{host}:{port}/{database}".format(
     database=utils.get_env_str("POSTGRES_DATABASE_NAME"),
 )
 
+DB_POOL_SIZE = CONFDICT["database"]["pool_size"]
+DB_MAX_OVERFLOW = CONFDICT["database"]["max_overflow"]
+DB_POOL_TIMEOUT = CONFDICT["database"]["pool_timeout"]
