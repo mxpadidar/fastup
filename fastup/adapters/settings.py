@@ -30,3 +30,12 @@ try:
     )
 except FileParseErr as e:
     raise RuntimeError("failed to parse logging configuration file") from e
+DB_URL = "{driver}://{user}:{password}@{host}:{port}/{database}".format(
+    driver="postgresql+asyncpg",
+    user=utils.get_env_str("POSTGRES_USER"),
+    password=utils.get_env_str("POSTGRES_PASSWORD"),
+    host=utils.get_env_str("POSTGRES_HOST"),
+    port=utils.get_env_int("POSTGRES_PORT"),
+    database=utils.get_env_str("POSTGRES_DATABASE_NAME"),
+)
+
