@@ -4,6 +4,11 @@ name = "fastup"
 version = "0.1.0"
 
 [database]
+user = "fastup"
+password = "fastup"
+host = "localhost"
+port = 5433
+dbname = "fastup"
 max_overflow = 5
 pool_size = 10
 pool_timeout = "30s"

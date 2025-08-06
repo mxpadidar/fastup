@@ -11,6 +11,7 @@ def get_env_path(env_var: str, fallback: pathlib.Path) -> pathlib.Path:
     path = pathlib.Path(value).resolve() if value else fallback.resolve()
     if not path.exists():
         raise FileNotFoundError(f"path does not exist: {path}")
+    print(f"resolved path for {env_var}: {path}")
     return path
 
 
