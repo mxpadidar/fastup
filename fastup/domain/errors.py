@@ -6,7 +6,7 @@ class BaseErr(Exception):
 
     def __init__(self, message: str) -> None:  # pragma: no cover
         super().__init__(message)
-        self.message = message
+        self.message: str = message
 
 
 class FileParseErr(Exception):
@@ -14,4 +14,4 @@ class FileParseErr(Exception):
 
     def __init__(self, path: pathlib.Path) -> None:
         super().__init__(f"could not parse file. {path=}")
-        self.path = path
+        self.path: pathlib.Path = path

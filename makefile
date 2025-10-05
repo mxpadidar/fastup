@@ -4,7 +4,7 @@ POSTGRES_PORT						:= 5433
 POSTGRES_DATABASE_NAME	:= fastup-dev
 POSTGRES_HOST						:= localhost
 POSTGRES_CONTAINER_NAME	:= ${POSTGRES_DATABASE_NAME}-container
-POSTGRES_IMAGE 					:= docker.io/postgres:17.5-bookworm
+POSTGRES_IMAGE 					:= docker.io/postgres:18.0-bookworm
 POSTGRES_DATA_DIR				:= .cache/pgdata
 
 .PHONY: run install test lint type-check all clean tree
@@ -40,34 +40,26 @@ clean:
 tree:
 	@tree -a --dirsfirst -I "__pycache__|.git|.cache|.venv"
 
-.PHONY: pg-start psql pg-stop pg-clean
+.PHONY: pg-start pg-stop pg-clean psql
 pg-start:
 	@mkdir -p $(POSTGRES_DATA_DIR)
-	@podman run -d --rm --replace \
-	--name $(POSTGRES_CONTAINER_NAME) \
-	-e POSTGRES_USER=$(POSTGRES_USER) \
-	-e POSTGRES_PASSWORD=$(POSTGRES_PASSWORD) \
-	-e POSTGRES_DB=$(POSTGRES_DATABASE_NAME) \
-	-v $(abspath $(POSTGRES_DATA_DIR)):/var/lib/postgresql/data \
-	-p $(POSTGRES_PORT):5432 $(POSTGRES_IMAGE) > /dev/null 2>&1 || true && \
-	echo "postgres container $(POSTGRES_CONTAINER_NAME) started." || \
-	echo "failed to start postgres container $(POSTGRES_CONTAINER_NAME)."
+	@podman run -d --replace \
+		--name $(POSTGRES_CONTAINER_NAME) \
+		-e POSTGRES_USER=$(POSTGRES_USER) \
+		-e POSTGRES_PASSWORD=$(POSTGRES_PASSWORD) \
+		-e POSTGRES_DB=$(POSTGRES_DATABASE_NAME) \
+		-v $(abspath $(POSTGRES_DATA_DIR)):/var/lib/postgresql/data \
+		-p $(POSTGRES_PORT):5432 $(POSTGRES_IMAGE) \
+	&& echo "postgres container $(POSTGRES_CONTAINER_NAME) started." \
+	|| echo "failed to start postgres container."
 
 psql:
-	@PGPASSWORD=$(POSTGRES_PASSWORD) psql \
-	-h $(POSTGRES_HOST) -p $(POSTGRES_PORT) \
-	-U $(POSTGRES_USER) $(POSTGRES_DATBASE_NAME) 2> /dev/null || \
-	(echo "failed to connect to postgresql, is the container running?" && true)
+	@podman exec -it $(POSTGRES_CONTAINER_NAME) psql -U $(POSTGRES_USER) -d $(POSTGRES_DATABASE_NAME)
 
 pg-stop:
-	@podman stop $(POSTGRES_CONTAINER_NAME) > /dev/null 2>&1 || true \
-	&& echo "container $(POSTGRES_CONTAINER_NAME) stopped." || \
-	echo "failed to stop container $(POSTGRES_CONTAINER_NAME)."
+	@podman stop $(POSTGRES_CONTAINER_NAME) && echo "postgres container stopped."
 
 pg-clean: pg-stop
-	@podman rm $(POSTGRES_CONTAINER_NAME) > /dev/null 2>&1 || true \
-	&& echo "container $(POSTGRES_CONTAINER_NAME) removed." || \
-	echo "failed to remove container $(POSTGRES_CONTAINER_NAME)."
-	@podman unshare rm -rf $(POSTGRES_DATA_DIR) \
-	&& echo "data directory $(POSTGRES_DATA_DIR) removed." || \
-	echo "failed to remove data directory $(POSTGRES_DATA_DIR)."
+	@podman rm $(POSTGRES_CONTAINER_NAME) 2>/dev/null || true
+	@podman unshare rm -rf $(POSTGRES_DATA_DIR) 2>/dev/null || sudo rm -rf $(POSTGRES_DATA_DIR)
+	@echo "postgres container and data cleaned."

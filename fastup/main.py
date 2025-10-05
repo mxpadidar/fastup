@@ -6,6 +6,7 @@ from fastup.entrypoints.routes import router
 
 app = FastAPI(title=settings.APP_NAME, version=settings.APP_VERSION)
 
+
 app.include_router(router)
 
 
@@ -17,7 +18,7 @@ def main() -> None:
         port=8000,
         reload=settings.DEBUG,
         log_config=settings.LOG_CONFIG,
-    ) # pragma: no cover
+    )  # pragma: no cover
 
 
 if __name__ == "__main__":

@@ -3,8 +3,7 @@ import tempfile
 
 import pytest
 
-from fastup.adapters.utils.toml_parser import parse_toml_file
-from fastup.domain.errors import FileParseErr
+from fastup.domain.parsers import parse_toml_file
 
 
 def test_parse_valid_toml():
@@ -22,7 +21,7 @@ def test_parse_valid_toml():
     assert data["tool"]["version"] == "1.0.0"
 
 
-def test_parse_invalid_toml_raises_file_parse_err():
+def test_parse_invalid_toml_raises_value_error():
     content = b"""
     [tool
     name = "bad"
@@ -31,17 +30,17 @@ def test_parse_invalid_toml_raises_file_parse_err():
         tmp.write(content)
         tmp_path = pathlib.Path(tmp.name)
 
-    with pytest.raises(FileParseErr):
+    with pytest.raises(ValueError):
         parse_toml_file(tmp_path)
 
 
-def test_missing_file_raises_file_parse_err():
+def test_missing_file_raises_value_error():
     path = pathlib.Path("/non/existent/path/config.toml")
-    with pytest.raises(FileParseErr):
+    with pytest.raises(ValueError):
         parse_toml_file(path)
 
 
-def test_unreadable_file_raises_file_parse_err(monkeypatch):
+def test_unreadable_file_raises_value_error(monkeypatch):
     """simulate oserror when trying to open the file."""
 
     path = pathlib.Path(__file__)  # any valid file path
@@ -51,5 +50,5 @@ def test_unreadable_file_raises_file_parse_err(monkeypatch):
 
     monkeypatch.setattr(pathlib.Path, "open", mock_open)
 
-    with pytest.raises(FileParseErr):
+    with pytest.raises(ValueError):
         parse_toml_file(path)

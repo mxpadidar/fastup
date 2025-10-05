@@ -25,11 +25,6 @@ dev = [
 [tool.uv]
 default-groups = ["dev"]
 
-[tool.pyright]
-pythonVersion = "3.13"
-venvPath = "."
-venv = ".venv"
-
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
@@ -47,6 +42,5 @@ directory = ".cache/coverage/html"
 output = ".cache/coverage/coverage.xml"
 
 [tool.ruff]
-line-length = 79
+line-length = 88
 cache-dir = ".cache/ruff"
-
