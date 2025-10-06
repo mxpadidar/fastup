@@ -22,6 +22,7 @@ typeCheckingMode = "standard"
 venvPath = "."
 venv = ".venv"
 reportAny = false
+reportExplicitAny = false
 
 [tool.ruff]
 line-length = 88
