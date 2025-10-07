@@ -13,3 +13,8 @@ APP_NAME = confile["app"]["name"]
 APP_VERSION = confile["app"]["version"]
 DEBUG = confile["app"]["debug"]
 PORT = confile["app"]["port"]
+
+try:
+    LOG_CONFIG = parse_toml_file(ROOT_DIR / "configs" / "logging.toml")
+except ValueError as e:
+    raise RuntimeError(f"Error parsing logging configuration file: {e}")
