@@ -10,6 +10,8 @@ dependencies = []
 dev = [
     "pre-commit>=4.3.0",
     "pyright>=1.1.406",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
     "ruff>=0.13.3",
 ]
 
@@ -27,3 +29,22 @@ reportExplicitAny = false
 [tool.ruff]
 line-length = 88
 cache-dir = ".cache/ruff"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = [ "-x", "-q" ]
+cache_dir = ".cache/pytest"
+
+[tool.coverage.run]
+data_file = ".cache/coverage/.coverage"
+branch = true
+
+[tool.coverage.report]
+omit = [ "settings.py", "main.py" ]
+exclude_also = [ ".*import.*", ".*logging.*" ]
+skip_empty = true
+skip_covered = false
+
+[tool.coverage.html]
+directory = ".cache/coverage/html"
