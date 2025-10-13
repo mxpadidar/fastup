@@ -3,3 +3,6 @@ debug = true
 name = "fastup"
 version = "0.1.0"
 port = 8000
+
+[database]
+url = "sqlite+aiosqlite:///db.sqlite3"
