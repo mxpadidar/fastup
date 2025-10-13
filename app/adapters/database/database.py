@@ -1,7 +1,10 @@
 import sqlalchemy
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.orm import registry
 
 from app.config import settings
+
+mapper_registry = registry()
 
 async_engine = create_async_engine(
     settings.DATABASE_URL,

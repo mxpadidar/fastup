@@ -11,6 +11,7 @@ from .routes import router
 @asynccontextmanager
 async def lifespan(*args):  # pragma: no cover
     await database.init_db(database.mapper_registry.metadata)
+    database.start_mappers()
     yield
     await database.async_engine.dispose()
 
