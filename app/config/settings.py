@@ -19,3 +19,8 @@ APP_NAME = confile["app"]["name"]
 APP_VERSION = confile["app"]["version"]
 DEBUG = confile["app"]["debug"]
 PORT = confile["app"]["port"]
+
+DATABASE_URL = confile["database"]["url"]
+DATABASE_POOL_SIZE = confile["database"].get("pool_size", 5)
+DATABASE_POOL_TIMEOUT = confile["database"].get("pool_timeout", 5)
+DATABASE_MAX_OVERFLOW = confile["database"].get("max_overflow", 10)

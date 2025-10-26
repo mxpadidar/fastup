@@ -5,7 +5,9 @@ description = "fastapi starter kit for clean and scalable api development"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "aiosqlite>=0.21.0",
     "fastapi>=0.120.0",
+    "sqlalchemy>=2.0.44",
     "uvicorn>=0.38.0",
 ]
 
