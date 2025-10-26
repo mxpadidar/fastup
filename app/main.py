@@ -4,13 +4,19 @@ import uvicorn
 from fastapi import FastAPI
 
 from app.config import settings
+from app.entrypoint.routes import router
 
 logging.basicConfig(level=settings.LOG_LEVEL)
 
 logger = logging.getLogger(__name__)
 
+app = FastAPI(
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
+    debug=settings.DEBUG,
+)
 
-app = FastAPI()
+app.include_router(router)
 
 
 def main() -> None:

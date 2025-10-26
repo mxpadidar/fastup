@@ -11,8 +11,10 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28.1",
     "pyright>=1.1.407",
     "pytest>=8.4.2",
+    "pytest-asyncio>=1.2.0",
     "pytest-cov>=7.0.0",
     "ruff>=0.14.2",
 ]
@@ -40,6 +42,7 @@ addopts = [ "-x", "-q" ]
 cache_dir = ".cache/pytest"
 log_cli = false
 log_cli_level = "INFO"
+asyncio_mode = "auto"
 
 [tool.coverage.run]
 data_file = ".cache/coverage/.coverage"
