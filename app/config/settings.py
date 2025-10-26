@@ -12,5 +12,6 @@ except ValueError as e:
 APP_NAME = confile["app"]["name"]
 APP_VERSION = confile["app"]["version"]
 DEBUG = confile["app"]["debug"]
+PORT = confile["app"]["port"]
 
 LOG_LEVEL = confile["logging"]["level"]

@@ -1,16 +1,25 @@
 import logging
 
+import uvicorn
+from fastapi import FastAPI
+
 from app.config import settings
 
-logging.basicConfig(level=settings.LOG_LEVEL)
-
-logger = logging.getLogger(__name__)
+app = FastAPI(title=settings.APP_NAME, version=settings.APP_VERSION)
 
 
 def main() -> None:
     """Application entry point."""
 
-    logger.info("Application started")
+    logging.basicConfig(level=settings.LOG_LEVEL)
+
+    uvicorn.run(
+        "app.main:app",
+        host="127.0.0.1",
+        port=settings.PORT,
+        reload=settings.DEBUG,
+        log_config=None,
+    )
 
 
 if __name__ == "__main__":
