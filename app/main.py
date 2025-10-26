@@ -15,14 +15,11 @@ async def lifespan(*args):  # pragma: no cover
     """Manage application lifespan events.
 
     Handles startup and shutdown tasks:
-    - Creates database tables on startup
     - Initializes ORM mappings
     - Disposes database connections on shutdown
 
     :param args: FastAPI application instance (unused).
     """
-    async with adapters.db_engine.begin() as conn:
-        await conn.run_sync(adapters.db_registry.metadata.create_all)
     adapters.start_orm_mappings()
     yield
     await adapters.db_engine.dispose()

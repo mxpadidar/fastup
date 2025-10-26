@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "aiosqlite>=0.21.0",
+    "alembic>=1.17.0",
     "fastapi>=0.120.0",
     "pwdlib[argon2]>=0.3.0",
     "sqlalchemy>=2.0.44",
@@ -30,7 +31,7 @@ pythonVersion = "3.13"
 typeCheckingMode = "standard"
 venvPath = "."
 venv = ".venv"
-exclude = [".cache", ".venv"]
+exclude = [".cache", ".venv", "alembic"]
 
 [tool.ruff]
 target-version = "py313"
@@ -58,3 +59,9 @@ skip_empty = true
 
 [tool.coverage.html]
 directory = ".cache/coverage/html"
+
+[tool.alembic]
+script_location = "%(here)s/alembic"
+prepend_sys_path = [
+    "."
+]
