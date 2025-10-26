@@ -5,3 +5,25 @@ description = "fastapi starter kit for clean and scalable api development"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = []
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.407",
+    "ruff>=0.14.2",
+]
+
+[tool.uv]
+default-groups = ["dev"]
+
+[tool.pyright]
+pythonVersion = "3.13"
+typeCheckingMode = "standard"
+venvPath = "."
+venv = ".venv"
+exclude = [".cache", ".venv"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+cache-dir = ".cache/ruff"
+exclude = [".cache", ".venv"]
