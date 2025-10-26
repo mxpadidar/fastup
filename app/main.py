@@ -1,12 +1,16 @@
 import logging
 
-logging.basicConfig(level=logging.INFO)
+from app.config import settings
+
+logging.basicConfig(level=settings.LOG_LEVEL)
 
 logger = logging.getLogger(__name__)
 
 
 def main() -> None:
-    logger.info("Starting FastUp application...")
+    """Application entry point."""
+
+    logger.info("Application started")
 
 
 if __name__ == "__main__":
