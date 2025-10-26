@@ -1,6 +1,9 @@
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.orm import registry
 
 from app.config import settings
+
+db_registry = registry()
 
 db_engine = create_async_engine(
     settings.DATABASE_URL,

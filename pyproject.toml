@@ -52,7 +52,7 @@ data_file = ".cache/coverage/.coverage"
 branch = true
 
 [tool.coverage.report]
-omit = [ "settings.py", "main.py" ]
+omit = [ "settings.py", "main.py", "mappings.py"]
 exclude_also = [ ".*import.*", ".*logging.*" ]
 skip_empty = true
 
