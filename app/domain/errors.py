@@ -46,3 +46,10 @@ class InvalidTokenErr(BaseErr):
 
     message = "Invalid token"
     code = 401
+
+
+class ConflictErr(BaseErr):
+    """Raised when a conflict occurs."""
+
+    message = "Conflict"
+    code = 409
