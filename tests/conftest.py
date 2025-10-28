@@ -10,12 +10,11 @@ from sqlalchemy.ext.asyncio import (
 
 from app import adapters
 from app.adapters import sqlalchemy_repos
-from app.domain import entities, protocols, repositories
+from app.domain import base, entities, protocols, repositories
 from app.main import app
 
 db_engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
 db_sessionmaker = async_sessionmaker(db_engine, expire_on_commit=False)
-
 
 
 @pytest.fixture
@@ -77,3 +76,8 @@ async def user(
 @pytest.fixture
 def user_repo(db_session: AsyncSession) -> repositories.UserRepo:
     return sqlalchemy_repos.UserSQLAlchemyRepo(db_session)
+
+
+@pytest.fixture
+async def uow() -> typing.AsyncGenerator[base.UnitOfWork, None]:
+    yield adapters.SqlAlchemyUoW(db_sessionmaker)

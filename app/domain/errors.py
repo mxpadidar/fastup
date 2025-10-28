@@ -25,3 +25,10 @@ class NotFoundErr(BaseErr):
 
     message = "Not found"
     code = 404
+
+
+class UoWIsNotReady(BaseErr):
+    """Raised when UoW operations are attempted outside the context manager."""
+
+    message = "UoW not ready"
+    code = 500
