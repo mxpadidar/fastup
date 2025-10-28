@@ -1,3 +1,4 @@
+import datetime
 import typing
 
 
@@ -21,4 +22,18 @@ class PasswordService(typing.Protocol):
         :return: True if the password matches the hash, False otherwise.
         :raises TypeError: If inputs are not strings.
         """
+        ...
+
+
+class Entity(typing.Protocol):
+    """Protocol defining the interface for domain entities."""
+
+    id: int
+
+    created_at: datetime.datetime
+    updated_at: datetime.datetime | None
+    deleted_at: datetime.datetime | None
+
+    def to_dict(self) -> dict:
+        """Convert the entity to a dictionary representation."""
         ...
