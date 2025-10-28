@@ -1,14 +1,11 @@
 import logging
+import logging.config
 
 import uvicorn
 from fastapi import FastAPI
 
 from app.config import settings
 from app.entrypoint.routes import router
-
-logging.basicConfig(level=settings.LOG_LEVEL)
-
-logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -20,13 +17,19 @@ app.include_router(router)
 
 
 def main() -> None:
-    logger.info(f"Starting {settings.APP_NAME} application...")
+    """Run the FastAPI application with uvicorn server.
+
+    Configures logging and starts the uvicorn ASGI server
+    with settings from application configuration.
+    """
+    logging.config.dictConfig(settings.LOG_CONFIG)
+    logging.getLogger(__name__).info("Starting application")
     uvicorn.run(
         "app.main:app",
         host="127.0.0.1",
         port=settings.PORT,
         reload=settings.DEBUG,
-        log_config=None,
+        log_config=settings.LOG_CONFIG,
     )
 
 

@@ -9,9 +9,13 @@ try:
 except ValueError as e:
     raise RuntimeError(f"Error parsing config file: {e}")
 
+try:
+    LOG_CONFIG = parse_toml_file(ROOT_DIR / "logging.toml")
+except ValueError as e:
+    raise RuntimeError(f"Error parsing logging configuration file: {e}")
+
+
 APP_NAME = confile["app"]["name"]
 APP_VERSION = confile["app"]["version"]
 DEBUG = confile["app"]["debug"]
 PORT = confile["app"]["port"]
-
-LOG_LEVEL = confile["logging"]["level"]
