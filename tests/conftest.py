@@ -9,7 +9,8 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from app import adapters
-from app.domain import protocols
+from app.adapters import sqlalchemy_repos
+from app.domain import entities, protocols, repositories
 from app.main import app
 
 db_engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
@@ -46,3 +47,33 @@ async def db_session() -> typing.AsyncGenerator[AsyncSession, None]:
     """Provide a per-test AsyncSession."""
     async with db_sessionmaker() as session:
         yield session
+
+
+@pytest.fixture
+def user_factory(
+    password_service: protocols.PasswordService,
+) -> typing.Callable[[int, str], entities.User]:
+    def factory(id: int, email: str) -> entities.User:
+        user = entities.User(email=email)
+        user.id = id
+        user.set_password("password", password_service)
+        return user
+
+    return factory
+
+
+@pytest.fixture
+async def user(
+    user_factory: typing.Callable[[int, str], entities.User], db_session: AsyncSession
+) -> typing.AsyncGenerator[entities.User, None]:
+    user = user_factory(100000, "test@example.com")
+    db_session.add(user)
+    await db_session.commit()
+    yield user
+    await db_session.delete(user)
+    await db_session.commit()
+
+
+@pytest.fixture
+def user_repo(db_session: AsyncSession) -> repositories.UserRepo:
+    return sqlalchemy_repos.UserSQLAlchemyRepo(db_session)
