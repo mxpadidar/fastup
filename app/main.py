@@ -1,4 +1,5 @@
 import logging
+import logging.config
 
 import uvicorn
 from fastapi import FastAPI
@@ -14,14 +15,14 @@ app.include_router(routes.router)
 def main() -> None:
     """Application entry point."""
 
-    logging.basicConfig(level=settings.LOG_LEVEL)
+    logging.config.dictConfig(settings.LOG_CONFIG)
 
     uvicorn.run(
         "app.main:app",
         host="127.0.0.1",
         port=settings.PORT,
         reload=settings.DEBUG,
-        log_config=None,
+        log_config=settings.LOG_CONFIG,
     )
 
 
