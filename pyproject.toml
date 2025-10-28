@@ -54,7 +54,7 @@ branch = true
 
 [tool.coverage.report]
 omit = [ "settings.py", "main.py", "mappings.py"]
-exclude_also = [ ".*import.*", ".*logging.*" ]
+exclude_also = [ ".*import.*", ".*logging.*", "NotImplementedError" ]
 skip_empty = true
 
 [tool.coverage.html]
