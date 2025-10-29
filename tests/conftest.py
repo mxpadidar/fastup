@@ -11,10 +11,13 @@ from sqlalchemy.ext.asyncio import (
 from app import adapters
 from app.adapters import sqlalchemy_repos
 from app.domain import base, entities, protocols, repositories
+from app.entrypoint import deps
 from app.main import app
 
 db_engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
 db_sessionmaker = async_sessionmaker(db_engine, expire_on_commit=False)
+
+app.dependency_overrides[deps.get_uow] = lambda: adapters.SqlAlchemyUoW(db_sessionmaker)
 
 
 @pytest.fixture

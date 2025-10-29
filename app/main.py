@@ -3,11 +3,16 @@ import logging.config
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 from app import adapters
 from app.config import settings
+from app.domain.errors import BaseErr
 from app.entrypoint.routes import router
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -33,6 +38,29 @@ app = FastAPI(
 )
 
 app.include_router(router)
+
+
+@app.exception_handler(BaseErr)
+async def domain_errors_handler(request: Request, exc: BaseErr):
+    """Handle domain-specific errors by returning a JSON response with error details."""
+    return JSONResponse(
+        status_code=exc.code,
+        content=[{"detail": exc.message, **exc.extra}],
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Handle Pydantic validation errors by formatting them into a list of error dicts."""
+    errors_list = [
+        {
+            ".".join(str(part) for part in e["loc"]): e["type"],
+            "detail": e["msg"],
+            "ctx": e.get("ctx", {}),
+        }
+        for e in exc.errors()
+    ]
+    return JSONResponse(status_code=422, content=errors_list)
 
 
 def main() -> None:
