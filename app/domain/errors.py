@@ -32,3 +32,10 @@ class UoWIsNotReady(BaseErr):
 
     message = "UoW not ready"
     code = 500
+
+
+class ValidationErr(BaseErr):
+    """Raised when validation fails."""
+
+    message = "Validation error"
+    code = 422
