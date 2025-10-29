@@ -81,3 +81,10 @@ def user_repo(db_session: AsyncSession) -> repositories.UserRepo:
 @pytest.fixture
 async def uow() -> typing.AsyncGenerator[base.UnitOfWork, None]:
     yield adapters.SqlAlchemyUoW(db_sessionmaker)
+
+
+@pytest.fixture(scope="session")
+def token_service() -> protocols.TokenService:
+    return adapters.JwtTokenService(
+        secret_key="secret", issuer="testiss", audience="testaud"
+    )

@@ -39,3 +39,10 @@ class ValidationErr(BaseErr):
 
     message = "Validation error"
     code = 422
+
+
+class InvalidTokenErr(BaseErr):
+    """Raised when a token is invalid, expired, or malformed."""
+
+    message = "Invalid token"
+    code = 401

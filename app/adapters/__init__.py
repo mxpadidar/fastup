@@ -1,4 +1,5 @@
 from .database import db_engine, db_registry, db_sessionmaker
+from .jwt_token_service import JwtTokenService
 from .orm.mappings import start_orm_mappings
 from .pwdlib_password_service import PwdlibPasswordService
 from .sqlalchemy_uow import SqlAlchemyUoW
@@ -10,4 +11,5 @@ __all__ = [
     "PwdlibPasswordService",
     "start_orm_mappings",
     "SqlAlchemyUoW",
+    "JwtTokenService",
 ]

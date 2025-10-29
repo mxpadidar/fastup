@@ -6,3 +6,10 @@ port = 8000
 
 [database]
 url = "sqlite+aiosqlite:///db.sqlite3"
+
+[token]
+issuer = "fastup"
+audience = "fastup"
+secret = "your_secret_key_here"
+access_exp = "15m"
+refresh_exp = "1d"

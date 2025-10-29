@@ -1,6 +1,6 @@
 import pathlib
 
-from .parsers import parse_toml_file
+from .parsers import parse_duration, parse_toml_file
 
 ROOT_DIR = pathlib.Path(__file__).parent.parent.parent
 
@@ -24,3 +24,9 @@ DATABASE_URL = confile["database"]["url"]
 DATABASE_POOL_SIZE = confile["database"].get("pool_size", 5)
 DATABASE_POOL_TIMEOUT = confile["database"].get("pool_timeout", 5)
 DATABASE_MAX_OVERFLOW = confile["database"].get("max_overflow", 10)
+
+TOKEN_SECRET = confile["token"]["secret"]
+TOKEN_ISSUER = confile["token"]["issuer"]
+TOKEN_AUDIENCE = confile["token"]["audience"]
+TOKEN_ACCESS_EXP = parse_duration(confile["token"]["access_exp"])
+TOKEN_REFRESH_EXP = parse_duration(confile["token"]["refresh_exp"])
