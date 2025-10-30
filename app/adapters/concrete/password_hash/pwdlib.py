@@ -1,14 +1,14 @@
 from pwdlib import PasswordHash
 
 
-class PwdlibPasswordService:
-    """Implementation of the PwService using pwdlib."""
+class PwdlibPasswordHash:
+    """pwdlib-based password hashing service."""
 
     def __init__(self):
         """Initialize the password hasher."""
         self.hasher = PasswordHash.recommended()
 
-    def hash_password(self, password: str) -> str:
+    def hash(self, password: str) -> str:
         """Hash a plaintext password using Argon2.
 
         :param password: Plaintext password to hash.
@@ -20,7 +20,7 @@ class PwdlibPasswordService:
 
         return self.hasher.hash(password)
 
-    def verify_password(self, password: str, password_hash: str) -> bool:
+    def verify(self, password: str, password_hash: str) -> bool:
         """Verify a plaintext password against a stored Argon2 hash.
 
         :param password: Plaintext password to check.
