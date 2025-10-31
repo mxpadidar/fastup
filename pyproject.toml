@@ -9,7 +9,10 @@ authors = [
   { name = "Mohsen Padidar", email = "mxpadidar@gmail.com" },
 ]
 
-dependencies = []
+dependencies = [
+    "fastapi>=0.120.0",
+    "uvicorn>=0.38.0",
+]
 
 [dependency-groups]
 dev = [
