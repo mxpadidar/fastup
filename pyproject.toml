@@ -21,6 +21,8 @@ dev = [
   "ruff>=0.14.2",
   "pytest>=8.4.2",
   "pytest-cov>=7.0.0",
+  "pytest-asyncio>=1.2.0",
+  "httpx>=0.28.1",
 ]
 
 [tool.uv]
@@ -40,6 +42,7 @@ addopts = "-q --tb=line --maxfail=1"
 console_output_style = "count"
 log_cli = false
 cache_dir = ".cache/pytest"
+asyncio_mode = "auto"
 # log_cli_level = "INFO"
 
 [tool.coverage.run]
