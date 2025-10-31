@@ -1,7 +1,7 @@
 import pathlib
 
 from .parsers import parse_toml_file
-from .types import AppConf, ServerConf
+from .types import AppConf, DBConfig, ServerConf
 
 root_dir = pathlib.Path(__file__).parent.parent.parent
 
@@ -20,3 +20,11 @@ except ValueError as e:  # pragma: no cover
 APP: AppConf = confile["app"]
 
 SERVER: ServerConf = confile["server"]
+
+DATABASE: DBConfig = {
+    "url": confile["database"]["url"],
+    "echo": confile["database"]["echo"],
+    "pool_size": 5,
+    "pool_timeout": 30,
+    "max_overflow": 10,
+}

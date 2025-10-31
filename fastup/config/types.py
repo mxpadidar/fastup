@@ -10,3 +10,11 @@ class ServerConf(typing.TypedDict):
     host: str
     port: int
     debug: bool
+
+
+class DBConfig(typing.TypedDict):
+    url: str
+    echo: bool
+    pool_size: int
+    max_overflow: int
+    pool_timeout: int  # seconds
