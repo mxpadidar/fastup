@@ -5,11 +5,14 @@ import uvicorn
 from fastapi import FastAPI
 
 from fastup import config
+from fastup.entrypoints import api_v1
 
 app = FastAPI(
     title=config.APP["name"],
     version=config.APP["version"],
 )
+
+app.include_router(api_v1.router)
 
 
 def main() -> None:
