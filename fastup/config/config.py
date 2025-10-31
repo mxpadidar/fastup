@@ -1,7 +1,7 @@
 import pathlib
 
 from .parsers import parse_toml_file
-from .types import AppConf
+from .types import AppConf, ServerConf
 
 root_dir = pathlib.Path(__file__).parent.parent.parent
 
@@ -18,3 +18,5 @@ except ValueError as e:  # pragma: no cover
 
 
 APP: AppConf = confile["app"]
+
+SERVER: ServerConf = confile["server"]

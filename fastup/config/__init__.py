@@ -1,3 +1,3 @@
-from .config import APP, LOG_CONFIG
+from .config import APP, LOG_CONFIG, SERVER
 
-__all__ = ["APP", "LOG_CONFIG"]
+__all__ = ["APP", "LOG_CONFIG", "SERVER"]
