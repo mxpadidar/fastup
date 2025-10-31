@@ -10,4 +10,11 @@ try:
 except ValueError as e:  # pragma: no cover
     raise RuntimeError(f"Error parsing config file: {e}")
 
+
+try:
+    LOG_CONFIG = parse_toml_file(root_dir / "logging.toml")
+except ValueError as e:  # pragma: no cover
+    raise RuntimeError(f"Error parsing logging configuration file: {e}")
+
+
 APP: AppConf = confile["app"]
