@@ -10,3 +10,9 @@ debug = true
 [database]
 url = "sqlite+aiosqlite:///./db.sqlite3"
 echo = false # set to True for debugging purposes
+
+[refresh-token-rotation]
+burst_limit = 5
+burst_window = 60s
+lock = 5m
+cooldown = 2s
