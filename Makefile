@@ -28,3 +28,15 @@ test:
 
 all: install fmt lint type-check test
 	@echo "-> ready to go!"
+
+.PHONY: migrations migrate rollback-migration
+migrations:
+	@read -p "enter migration message: " message; \
+	uv run alembic revision --autogenerate -m "$$message"
+
+migrate:
+	@uv run alembic upgrade head
+
+rollback-migration:
+	@uv run alembic downgrade -1
+	@echo "consider manually removing the migration file if necessary."
