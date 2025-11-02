@@ -1,6 +1,9 @@
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.orm import registry
 
 from fastup.config import DATABASE
+
+mapper_registry = registry()
 
 async_engine = create_async_engine(
     DATABASE["url"],
