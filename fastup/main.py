@@ -5,11 +5,12 @@ import uvicorn
 from fastapi import FastAPI
 
 from fastup import config
-from fastup.entrypoints import api_v1
+from fastup.entrypoints import api_v1, app_lifespan
 
 app = FastAPI(
     title=config.APP["name"],
     version=config.APP["version"],
+    lifespan=app_lifespan,
 )
 
 app.include_router(api_v1.router)
