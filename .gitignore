@@ -2,3 +2,4 @@ __pycache__/
 .venv
 .cache
 db.sqlite3
+codebook.toml
