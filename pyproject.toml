@@ -56,6 +56,9 @@ directory = ".cache/coverage"
 
 [tool.coverage.report]
 omit = ["main.py"]
+exclude_also = [
+  "raise NotImplementedError",
+]
 skip_empty = true
 skip_covered = true
 precision = 2
