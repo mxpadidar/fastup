@@ -55,3 +55,8 @@ async def async_session(
 @pytest.fixture
 async def uow(session_factory: async_sessionmaker[AsyncSession]) -> ports.UnitOfWork:
     return concrete.SQLUoW(session_factory)
+
+
+@pytest.fixture(scope="session")
+def pwdlib_hasher() -> ports.Hasher:
+    return concrete.PwdlibHasher()
