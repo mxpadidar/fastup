@@ -40,3 +40,10 @@ class NotFoundExc(BaseExc):
 
     message = "Resource not found"
     code = HTTPStatus.NOT_FOUND
+
+
+class UoWIsNotReady(BaseExc):
+    """Raised when UoW operations are attempted outside the context manager."""
+
+    message = "UoW not ready"
+    code = HTTPStatus.INTERNAL_SERVER_ERROR
