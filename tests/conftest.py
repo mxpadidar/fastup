@@ -5,7 +5,8 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from fastup.adapters import database
+from fastup.adapters import concrete, database
+from fastup.domain import ports
 from fastup.main import app
 
 
@@ -49,3 +50,8 @@ async def async_session(
 ) -> typing.AsyncGenerator[AsyncSession, None]:
     async with session_factory() as db:
         yield db
+
+
+@pytest.fixture
+async def uow(session_factory: async_sessionmaker[AsyncSession]) -> ports.UnitOfWork:
+    return concrete.SQLUoW(session_factory)
