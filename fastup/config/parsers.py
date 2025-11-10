@@ -1,17 +1,21 @@
 import pathlib
-import tomllib
 import typing
 
+import yaml
 
-def parse_toml_file(path: pathlib.Path) -> dict[str, typing.Any]:
-    """Parse a TOML file and return its contents as a dictionary.
 
-    :param path: Path to the TOML file.
-    :return: Dictionary containing the parsed TOML file contents.
-    :raises ValueError: If the file cannot be found, is not a valid TOML file,
+def parse_yaml_file(path: pathlib.Path) -> dict[str, typing.Any]:
+    """Parse a YAML file and return its contents as a dictionary.
+
+    :param path: Path to the YAML file.
+    :return: Dictionary containing the parsed YAML file contents.
+    :raises ValueError: If the file cannot be found or is not valid YAML.
     """
     try:
-        with path.open("rb") as file:
-            return tomllib.load(file)
-    except (FileNotFoundError, tomllib.TOMLDecodeError, OSError) as e:
-        raise ValueError(f"Error parsing TOML file '{path}': {e}") from e
+        with path.open("r", encoding="utf-8") as file:
+            data = yaml.safe_load(file)
+            if data is None:
+                return {}
+            return data
+    except (FileNotFoundError, OSError, yaml.YAMLError) as e:
+        raise ValueError(f"Error parsing YAML file '{path}': {e}") from e

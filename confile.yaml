@@ -1,0 +1,22 @@
+app:
+  name: FastUp
+  version: 0.1.0
+
+server:
+  host: 127.0.0.1
+  port: 8000
+  debug: true
+
+database:
+  url: sqlite+aiosqlite:///./db.sqlite3
+  echo: false
+
+refresh-token-rotation:
+  burst_limit: 5
+  burst_window: 60s
+  lock: 5m
+  cooldown: 2s
+
+redis:
+  host: localhost
+  port: 6379
