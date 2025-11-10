@@ -14,6 +14,9 @@ run:
 	@uv run uvicorn ${PACKAGE}.entrypoints.app:app --host 0.0.0.0 \
 		--port ${PORT} --reload --log-config=${LOG_CONFIG}
 
+worker:
+	@uv run celery -A ${PACKAGE}.entrypoints.worker worker
+
 install:
 	@echo "-> syncing dependencies"
 	@uv sync
