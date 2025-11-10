@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from fastup.adapters import concrete, database
 from fastup.domain import ports
-from fastup.main import app
+from fastup.entrypoints.app import app
 
 
 @pytest.fixture

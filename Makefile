@@ -1,9 +1,12 @@
 PACKAGE ?= fastup
+LOG_CONFIG ?= ./logging.yaml
+PORT ?= 8000
 
 .PHONY: run install fmt lint type-check test all
 
 run:
-	@uv run python -m $(PACKAGE).main
+	@uv run uvicorn ${PACKAGE}.entrypoints.app:app --host 0.0.0.0 \
+		--port ${PORT} --reload --log-config=${LOG_CONFIG}
 
 install:
 	@echo "-> syncing dependencies"
