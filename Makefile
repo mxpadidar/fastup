@@ -17,6 +17,9 @@ run:
 worker:
 	@uv run celery -A ${PACKAGE}.entrypoints.worker worker
 
+dev:
+	@uv run honcho start
+
 install:
 	@echo "-> syncing dependencies"
 	@uv sync
