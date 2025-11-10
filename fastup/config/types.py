@@ -18,3 +18,10 @@ class DBConfig(typing.TypedDict):
     pool_size: int
     max_overflow: int
     pool_timeout: int  # seconds
+
+
+class RedisConfig(typing.TypedDict):
+    host: str
+    port: int
+    db: int
+    password: typing.NotRequired[str]

@@ -1,8 +1,8 @@
 import logging.config
 import pathlib
 
-from .types import AppConf, DBConfig, ServerConf
 from .parsers import parse_yaml_file
+from .types import AppConf, DBConfig, RedisConfig, ServerConf
 
 root_dir = pathlib.Path(__file__).parent.parent.parent
 
@@ -29,4 +29,10 @@ DATABASE: DBConfig = {
     "pool_size": 5,
     "pool_timeout": 30,
     "max_overflow": 10,
+}
+
+REDIS: RedisConfig = {
+    "host": confile["redis"]["host"],
+    "port": confile["redis"]["port"],
+    "db": confile["redis"].get("db", 0),
 }
