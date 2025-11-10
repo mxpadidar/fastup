@@ -2,6 +2,12 @@ PACKAGE ?= fastup
 LOG_CONFIG ?= ./logging.yaml
 PORT ?= 8000
 
+REDIS_IMAGE ?= docker.io/library/redis:8.4-rc1
+REDIST_VAOLUME_DIR ?= $(PWD)/.cache/redis-data
+REDIS_PORT ?= 6379
+REDIS_CONTAINER ?= $(PACKAGE)-redis
+
+
 .PHONY: run install fmt lint type-check test all
 
 run:
@@ -43,3 +49,15 @@ migrate:
 rollback-migration:
 	@uv run alembic downgrade -1
 	@echo "consider manually removing the migration file if necessary."
+
+# podman redis helpers
+.PHONY: redis-up redis-down redis-shell
+redis-up:
+	@mkdir -p "$(REDIST_VAOLUME_DIR)"
+	@podman run -d --name $(REDIS_CONTAINER) -p $(REDIS_PORT):$(REDIS_PORT) -v "$(REDIST_VAOLUME_DIR):/data:Z" $(REDIS_IMAGE)
+
+redis-down:
+	@podman rm -f $(REDIS_CONTAINER)
+
+redis-shell:
+	@podman exec -it $(REDIS_CONTAINER) redis-cli
