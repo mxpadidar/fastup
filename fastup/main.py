@@ -1,5 +1,7 @@
 import logging
 
+import uvicorn
+
 
 def main():
     """Main entry point for the application."""
@@ -10,6 +12,8 @@ def main():
     )
     logger = logging.getLogger(__name__)
     logger.info("Starting...")
+
+    uvicorn.run(app="fastup.api.app:app", log_config=None, reload=True)
 
 
 if __name__ == "__main__":
