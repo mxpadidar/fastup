@@ -4,7 +4,10 @@ version = "0.1.0"
 description = "A production-ready FastAPI starter with solid architecture and essential dev tools."
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "fastapi>=0.121.3",
+    "uvicorn>=0.38.0",
+]
 
 [dependency-groups]
 dev = [
