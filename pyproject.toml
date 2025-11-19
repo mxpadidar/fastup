@@ -5,3 +5,20 @@ description = "A production-ready FastAPI starter with solid architecture and es
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = []
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.407",
+    "ruff>=0.14.5",
+]
+
+[tool.pyright]
+pythonVersion = "3.13"
+typeCheckingMode = "standard"
+venvPath = "."
+venv = ".venv"
+
+[tool.ruff]
+line-length = 88
+cache-dir = ".cache/ruff"
+exclude = [".cache"]
