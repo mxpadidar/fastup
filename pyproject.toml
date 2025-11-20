@@ -5,9 +5,11 @@ description = "A production-ready FastAPI starter with solid architecture and es
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "asyncpg>=0.30.0",
     "fastapi>=0.121.3",
     "pydantic>=2.12.4",
     "pydantic-settings>=2.12.0",
+    "sqlalchemy>=2.0.44",
     "uvicorn>=0.38.0",
 ]
 
@@ -39,6 +41,8 @@ console_output_style = "count"
 log_cli = false
 cache_dir = ".cache/pytest"
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
 
 [tool.coverage.run]
 data_file = ".cache/.coverage"
