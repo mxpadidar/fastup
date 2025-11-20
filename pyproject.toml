@@ -5,6 +5,7 @@ description = "A production-ready FastAPI starter with solid architecture and es
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "alembic>=1.17.2",
     "asyncpg>=0.30.0",
     "fastapi>=0.121.3",
     "pydantic>=2.12.4",
@@ -55,3 +56,7 @@ skip_empty = true
 skip_covered = true
 precision = 2
 omit = ["main.py"]
+
+[tool.alembic]
+script_location = "%(here)s/alembic"
+prepend_sys_path = ["."]
