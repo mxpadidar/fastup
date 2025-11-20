@@ -1,5 +1,6 @@
 from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.orm import registry
 
 from fastup.config import get_config
 
@@ -23,3 +24,5 @@ engine = create_async_engine(
 )
 
 sessionmaker = async_sessionmaker(bind=engine, expire_on_commit=False)
+
+mapper_registry = registry()
