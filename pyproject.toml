@@ -57,6 +57,7 @@ skip_empty = true
 skip_covered = true
 precision = 2
 omit = ["main.py"]
+exclude_also = ["raise NotImplementedError"]
 
 [tool.alembic]
 script_location = "%(here)s/alembic"
