@@ -21,3 +21,7 @@ class NotFoundExc(BaseExc):
 
 class ConflictExc(BaseExc):
     message = "A resource conflict occurred, likely due to a duplicate entry."
+
+
+class UnitOfWorkContextExc(InternalExc):
+    message = "An operation was attempted outside of the active Unit of Work context."
