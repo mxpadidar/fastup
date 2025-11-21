@@ -2,9 +2,17 @@ import typing
 
 import httpx
 import pytest
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 from fastup.api.app import app
 from fastup.core import protocols
+from fastup.infra.db import mapper_registry
+from fastup.infra.orm_mapper import start_orm_mapper
 from fastup.infra.snowflake_idgen import SnowflakeIDGen
 
 
@@ -21,3 +29,38 @@ async def async_client() -> typing.AsyncGenerator[httpx.AsyncClient, None]:
 async def idgen() -> protocols.IDGen:
     """Provide a Snowflake ID generator instance for testing."""
     return SnowflakeIDGen(epoch=1609459200000, node_id=1, worker_id=1)
+
+
+@pytest.fixture(scope="session")
+async def db_engine() -> typing.AsyncGenerator[AsyncEngine, None]:
+    """Creates a new in-memory SQLite async engine for the test session."""
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
+    yield engine
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def setup_db(db_engine: AsyncEngine) -> typing.AsyncGenerator[None, None]:
+    """Sets up the database schema for the test session."""
+    async with db_engine.begin() as conn:
+        await conn.run_sync(mapper_registry.metadata.create_all)
+        start_orm_mapper()
+        yield
+        await conn.run_sync(mapper_registry.metadata.drop_all)
+
+    await db_engine.dispose()
+
+
+@pytest.fixture(scope="session")
+def sessionmaker(db_engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
+    """Provides a session factory for creating new async sessions."""
+    return async_sessionmaker(bind=db_engine, expire_on_commit=False)
+
+
+@pytest.fixture
+async def db_session(
+    sessionmaker: async_sessionmaker[AsyncSession],
+) -> typing.AsyncGenerator[AsyncSession, None]:
+    """Provides a new, transaction-scoped session for a test."""
+    async with sessionmaker() as session:
+        yield session
+        await session.rollback()
