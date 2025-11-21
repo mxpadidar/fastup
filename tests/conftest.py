@@ -10,8 +10,10 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from fastup.api.app import app
+from fastup.core.unit_of_work import UnitOfWork
 from fastup.infra.db import mapper_registry
 from fastup.infra.orm_mapper import start_orm_mapper
+from fastup.infra.sql_unit_of_work import SQLUnitOfwWork
 
 
 @pytest.fixture
@@ -52,3 +54,9 @@ async def db_session(
     async with sessionmaker() as session:
         yield session
         await session.rollback()
+
+
+@pytest.fixture
+async def uow(sessionmaker: async_sessionmaker[AsyncSession]) -> UnitOfWork:
+    """Provide a SQL-based Unit of Work instance for testing database operations."""
+    return SQLUnitOfwWork(sessionmaker)
