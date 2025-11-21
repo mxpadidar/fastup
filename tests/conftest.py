@@ -2,8 +2,16 @@ import typing
 
 import httpx
 import pytest
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 from fastup.api.app import app
+from fastup.infra.db import mapper_registry
+from fastup.infra.orm_mapper import start_orm_mapper
 
 
 @pytest.fixture
@@ -13,3 +21,34 @@ async def async_client() -> typing.AsyncGenerator[httpx.AsyncClient, None]:
         transport=httpx.ASGITransport(app=app), base_url="http://test"
     ) as client:
         yield client
+
+
+@pytest.fixture(scope="session")
+async def db_engine() -> typing.AsyncGenerator[AsyncEngine, None]:
+    """Creates a new in-memory SQLite async engine for the test session."""
+    yield create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def setup_db(db_engine: AsyncEngine) -> typing.AsyncGenerator[None, None]:
+    """Sets up the database schema for the test session."""
+    async with db_engine.begin() as conn:
+        await conn.run_sync(mapper_registry.metadata.create_all)
+    start_orm_mapper()
+    yield
+
+
+@pytest.fixture(scope="session")
+def sessionmaker(db_engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
+    """Provides a session factory for creating new async sessions."""
+    return async_sessionmaker(bind=db_engine, expire_on_commit=False)
+
+
+@pytest.fixture
+async def db_session(
+    sessionmaker: async_sessionmaker[AsyncSession],
+) -> typing.AsyncGenerator[AsyncSession, None]:
+    """Provides a new, transaction-scoped session for a test."""
+    async with sessionmaker() as session:
+        yield session
+        await session.rollback()
