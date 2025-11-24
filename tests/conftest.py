@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+from fastup.api import deps
 from fastup.api.app import app
 from fastup.config import Config
 from fastup.core import protocols, repositories, services
@@ -21,10 +22,15 @@ from fastup.infra.orm_mapper import start_orm_mapper
 from fastup.infra.snowflake_idgen import SnowflakeIDGenerator
 from fastup.infra.sql_unit_of_work import SQLUnitOfwWork
 
+type UowProvider = typing.Callable[..., UnitOfWork]
+
 
 @pytest.fixture
-async def async_client() -> typing.AsyncGenerator[httpx.AsyncClient, None]:
+async def async_client(
+    uow_provider: UowProvider,
+) -> typing.AsyncGenerator[httpx.AsyncClient, None]:
     """Provide an async HTTP client for testing FastAPI endpoints."""
+    app.dependency_overrides[deps.get_uow] = uow_provider
     async with httpx.AsyncClient(
         transport=httpx.ASGITransport(app=app), base_url="http://test"
     ) as client:
@@ -96,3 +102,25 @@ async def user_repo(db_session: AsyncSession) -> repositories.UserRepo:
 @pytest.fixture(scope="session")
 def config() -> protocols.CoreConf:
     return Config()  # type: ignore
+
+
+@pytest.fixture
+async def uow_provider(
+    db_engine: AsyncEngine,
+) -> typing.AsyncGenerator[UowProvider, None]:
+    """Provides a UoW provider for transactional testing.
+
+    Uses transaction rollback pattern to ensure test isolation.
+    """
+    connection = await db_engine.connect()
+    transaction = await connection.begin()
+    sessionmaker = async_sessionmaker(bind=connection, expire_on_commit=False)
+
+    def get_test_uow() -> UnitOfWork:
+        return SQLUnitOfwWork(session_factory=sessionmaker)
+
+    try:
+        yield get_test_uow
+    finally:
+        await transaction.rollback()
+        await connection.close()
