@@ -12,7 +12,8 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import clear_mappers
 
 from fastup.api.app import app
-from fastup.core import services, unit_of_work
+from fastup.config import Config
+from fastup.core import protocols, services, unit_of_work
 from fastup.infra import (
     db,
     hash_services,
@@ -94,3 +95,9 @@ def argon2_hasher() -> services.HashService:
 def hmac_hasher() -> services.HashService:
     """Provides an instance of the HMAC hasher with the application secret key."""
     return hash_services.HMACHasher()
+
+
+@pytest.fixture(scope="session")
+def config() -> protocols.CoreConf:
+    """Provides the application configuration for testing."""
+    return Config()  # type: ignore
