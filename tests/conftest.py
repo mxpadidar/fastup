@@ -1,3 +1,4 @@
+import datetime
 import typing
 
 import httpx
@@ -10,9 +11,11 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from fastup.api.app import app
+from fastup.core import services
 from fastup.core.unit_of_work import UnitOfWork
 from fastup.infra.db import mapper_registry
 from fastup.infra.orm_mapper import start_orm_mapper
+from fastup.infra.snowflake_idgen import SnowflakeIDGenerator
 from fastup.infra.sql_unit_of_work import SQLUnitOfwWork
 
 
@@ -60,3 +63,10 @@ async def db_session(
 async def uow(sessionmaker: async_sessionmaker[AsyncSession]) -> UnitOfWork:
     """Provide a SQL-based Unit of Work instance for testing database operations."""
     return SQLUnitOfwWork(sessionmaker)
+
+
+@pytest.fixture(scope="session")
+async def idgen() -> services.IDGenerator:
+    """Provide a Snowflake ID generator instance for testing."""
+    epoch = datetime.datetime.now().timestamp() * 1000
+    return SnowflakeIDGenerator(epoch=int(epoch), node_id=1, worker_id=1)
