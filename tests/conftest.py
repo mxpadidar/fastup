@@ -14,6 +14,7 @@ from fastup.api.app import app
 from fastup.core import services
 from fastup.core.unit_of_work import UnitOfWork
 from fastup.infra.db import mapper_registry
+from fastup.infra.hash_services import Argon2PasswordHasher, HMACHasher
 from fastup.infra.orm_mapper import start_orm_mapper
 from fastup.infra.snowflake_idgen import SnowflakeIDGenerator
 from fastup.infra.sql_unit_of_work import SQLUnitOfwWork
@@ -70,3 +71,15 @@ async def idgen() -> services.IDGenerator:
     """Provide a Snowflake ID generator instance for testing."""
     epoch = datetime.datetime.now().timestamp() * 1000
     return SnowflakeIDGenerator(epoch=int(epoch), node_id=1, worker_id=1)
+
+
+@pytest.fixture(scope="session")
+def argon2_hasher() -> Argon2PasswordHasher:
+    """Provides an instance of the Argon2 password hasher."""
+    return Argon2PasswordHasher()
+
+
+@pytest.fixture(scope="session")
+def hmac_hasher() -> HMACHasher:
+    """Provides an instance of the HMAC hasher with the application secret key."""
+    return HMACHasher(key=b"asdf")
