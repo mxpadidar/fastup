@@ -11,8 +11,9 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from fastup.api.app import app
-from fastup.core import services
+from fastup.core import repositories, services
 from fastup.core.unit_of_work import UnitOfWork
+from fastup.infra import sql_repositories
 from fastup.infra.db import mapper_registry
 from fastup.infra.hash_services import Argon2PasswordHasher, HMACHasher
 from fastup.infra.orm_mapper import start_orm_mapper
@@ -83,3 +84,9 @@ def argon2_hasher() -> Argon2PasswordHasher:
 def hmac_hasher() -> HMACHasher:
     """Provides an instance of the HMAC hasher with the application secret key."""
     return HMACHasher(key=b"asdf")
+
+
+@pytest.fixture
+async def user_repo(db_session: AsyncSession) -> repositories.UserRepo:
+    """Provides a UserSQLRepo instance with an active session."""
+    return sql_repositories.UserSQLRepo(db_session)
