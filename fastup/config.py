@@ -1,4 +1,6 @@
 import functools
+import secrets
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -31,6 +33,9 @@ class Config(BaseSettings):
     snowflake_epoch: int = 1609459200000  # 2021-01-01 00:00:00 UTC in milliseconds
     snowflake_node_id: int = 1
     snowflake_worker_id: int = 1
+
+    # --- Security Configuration ---
+    hmac_secret_key: bytes = secrets.token_bytes(32)
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="fastup_")
 
