@@ -3,7 +3,7 @@ import logging
 from fastup.core import entities
 
 from .db import mapper_registry
-from .tables import users
+from .tables import otps, users
 
 logger = logging.getLogger(__name__)
 
@@ -20,3 +20,4 @@ def start_orm_mapper() -> None:  # pragma: no cover
     logger.info("Starting Orm...")
 
     mapper_registry.map_imperatively(entities.User, users)
+    mapper_registry.map_imperatively(entities.Otp, otps)
