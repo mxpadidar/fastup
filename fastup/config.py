@@ -1,3 +1,4 @@
+import datetime
 import functools
 import secrets
 
@@ -36,6 +37,24 @@ class Config(BaseSettings):
 
     # --- Security Configuration ---
     hmac_secret_key: bytes = secrets.token_bytes(32)
+
+    # --- OTP Configuration ---
+    otp_length: int = 4
+    otp_lifetime_sec: int = 300  # 5 minutes
+    otp_max_attempts: int = 3
+    otp_rate_limit_max_requests: int = 5
+    otp_rate_limit_window_sec: int = 600  # 10 minutes
+
+    # --- Computed fields that implement the CoreConf protocol ---
+    @property
+    def otp_lifetime(self) -> datetime.timedelta:  # pragma: no cover
+        """Derived timedelta object for OTP lifetime."""
+        return datetime.timedelta(seconds=self.otp_lifetime_sec)
+
+    @property
+    def otp_rate_limit_window(self) -> datetime.timedelta:  # pragma: no cover
+        """Derived timedelta object for the rate-limit window."""
+        return datetime.timedelta(seconds=self.otp_rate_limit_window_sec)
 
     model_config = SettingsConfigDict(
         env_file=".env", env_prefix="fastup_", frozen=True
