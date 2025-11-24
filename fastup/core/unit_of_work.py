@@ -8,6 +8,7 @@ class UnitOfWork(abc.ABC):
     """Base Unit of Work for managing database transactions."""
 
     users: repositories.UserRepo
+    otps: repositories.OtpRepo
 
     async def __aenter__(self) -> typing.Self:
         """Enter the async context and return the UoW instance."""
