@@ -11,3 +11,7 @@ class UserStatus(enum.StrEnum):
     ACTIVE = enum.auto()
     INACTIVE = enum.auto()
     BANNED = enum.auto()
+
+
+class OtpIntent(enum.StrEnum):
+    SIGN_UP = enum.auto()
