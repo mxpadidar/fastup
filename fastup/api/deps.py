@@ -1,6 +1,7 @@
 import functools
 from typing import Annotated
 
+from fastapi import Request
 from fastapi.params import Depends
 
 from fastup.config import Config, get_config
@@ -41,3 +42,9 @@ def get_hmac_hasher(
 def get_pwd_hasher() -> services.HashService:
     """Provide singleton Argon2 password hasher instance."""
     return Argon2PasswordHasher()
+
+
+def get_ipaddr(request: Request) -> str:
+    """Extract client IP address from the request."""
+    assert request.client
+    return request.client.host
