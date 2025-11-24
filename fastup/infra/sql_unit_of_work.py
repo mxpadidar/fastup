@@ -25,6 +25,7 @@ class SQLUnitOfwWork(UnitOfWork):
         session = self._session_factory()
         self._session = session
         self.users = sql_repositories.UserSQLRepo(session)
+        self.otps = sql_repositories.OtpSQLRepo(session)
         await super().__aenter__()
         return self
 
