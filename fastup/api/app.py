@@ -2,10 +2,13 @@ import typing
 from contextlib import asynccontextmanager
 
 import fastapi
+from fastapi.exceptions import RequestValidationError
 
 from fastup.config import get_config
+from fastup.core.exceptions import BaseExc
 from fastup.infra.orm_mapper import start_orm_mapper
 
+from .v1.exc_handlers import core_exception_handler, http_validation_exception_handler
 from .v1.routes import router
 
 config = get_config()
@@ -30,3 +33,6 @@ app = fastapi.FastAPI(
 
 
 app.include_router(router, prefix="/api/v1/fastup")
+
+app.add_exception_handler(BaseExc, core_exception_handler)  # type: ignore
+app.add_exception_handler(RequestValidationError, http_validation_exception_handler)  # type: ignore
