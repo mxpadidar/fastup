@@ -28,6 +28,11 @@ class Config(BaseSettings):
     db_pool_max_overflow: int = 10
     db_echo_sql: bool = False
 
+    # --- Snowflake ID Generator Configuration ---
+    snowflake_epoch: int = 1609459200000  # 2021-01-01 00:00:00 UTC in milliseconds
+    snowflake_node_id: int = 1
+    snowflake_worker_id: int = 1
+
     model_config = SettingsConfigDict(env_file=".env", env_prefix="fastup_")
 
     model_config = SettingsConfigDict(
