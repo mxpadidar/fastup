@@ -1,4 +1,5 @@
 import functools
+import secrets
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -33,7 +34,8 @@ class Config(BaseSettings):
     snowflake_node_id: int = 1
     snowflake_worker_id: int = 1
 
-    model_config = SettingsConfigDict(env_file=".env", env_prefix="fastup_")
+    # --- Security Configuration ---
+    hmac_secret_key: bytes = secrets.token_bytes(32)
 
     model_config = SettingsConfigDict(
         env_file=".env", env_prefix="fastup_", frozen=True
