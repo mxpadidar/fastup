@@ -11,7 +11,8 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from fastup.api.app import app
-from fastup.core import repositories, services
+from fastup.config import Config
+from fastup.core import protocols, repositories, services
 from fastup.core.unit_of_work import UnitOfWork
 from fastup.infra import sql_repositories
 from fastup.infra.db import mapper_registry
@@ -90,3 +91,8 @@ def hmac_hasher() -> HMACHasher:
 async def user_repo(db_session: AsyncSession) -> repositories.UserRepo:
     """Provides a UserSQLRepo instance with an active session."""
     return sql_repositories.UserSQLRepo(db_session)
+
+
+@pytest.fixture(scope="session")
+def config() -> protocols.CoreConf:
+    return Config()  # type: ignore
