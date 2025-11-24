@@ -13,7 +13,13 @@ from sqlalchemy.orm import clear_mappers
 
 from fastup.api.app import app
 from fastup.core import services, unit_of_work
-from fastup.infra import db, orm_mapper, snowflake_idgen, sql_unit_of_work
+from fastup.infra import (
+    db,
+    hash_services,
+    orm_mapper,
+    snowflake_idgen,
+    sql_unit_of_work,
+)
 
 
 @pytest.fixture
@@ -76,3 +82,15 @@ def uow(sessionmaker: async_sessionmaker[AsyncSession]) -> unit_of_work.UnitOfWo
 def idgen() -> services.IDGenerator:
     """Provide a Snowflake ID generator instance for testing."""
     return snowflake_idgen.SnowflakeIDGenerator()
+
+
+@pytest.fixture(scope="session")
+def argon2_hasher() -> services.HashService:
+    """Provides an instance of the Argon2 password hasher."""
+    return hash_services.Argon2PasswordHasher()
+
+
+@pytest.fixture(scope="session")
+def hmac_hasher() -> services.HashService:
+    """Provides an instance of the HMAC hasher with the application secret key."""
+    return hash_services.HMACHasher()
