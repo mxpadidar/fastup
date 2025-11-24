@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import clear_mappers
 
-from fastup.api.app import app
+from fastup.api import app, deps
 from fastup.config import Config
 from fastup.core import protocols, services, unit_of_work
 from fastup.infra import (
@@ -24,10 +24,13 @@ from fastup.infra import (
 
 
 @pytest.fixture
-async def async_client() -> typing.AsyncGenerator[httpx.AsyncClient, None]:
+async def async_client(
+    uow_provider: typing.Callable[[], unit_of_work.UnitOfWork],
+) -> typing.AsyncGenerator[httpx.AsyncClient, None]:
     """Provide an async HTTP client for testing FastAPI endpoints."""
+    app.app.dependency_overrides[deps.get_uow] = uow_provider
     async with httpx.AsyncClient(
-        transport=httpx.ASGITransport(app=app), base_url="http://test"
+        transport=httpx.ASGITransport(app=app.app), base_url="http://test"
     ) as client:
         yield client
 
@@ -101,3 +104,15 @@ def hmac_hasher() -> services.HashService:
 def config() -> protocols.CoreConf:
     """Provides the application configuration for testing."""
     return Config()  # type: ignore
+
+
+@pytest.fixture
+def uow_provider(
+    sessionmaker: async_sessionmaker[AsyncSession],
+) -> typing.Callable[[], unit_of_work.UnitOfWork]:
+    """Provides a UnitOfWork factory function for dependency injection in tests."""
+
+    def get_test_uow() -> unit_of_work.UnitOfWork:
+        return sql_unit_of_work.SQLUnitOfwWork(session_factory=sessionmaker)
+
+    return get_test_uow
