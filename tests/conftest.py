@@ -17,6 +17,7 @@ from fastup.core import protocols, services, unit_of_work
 from fastup.infra import (
     db,
     hash_services,
+    local_sms_service,
     orm_mapper,
     snowflake_idgen,
     sql_unit_of_work,
@@ -116,3 +117,9 @@ def uow_provider(
         return sql_unit_of_work.SQLUnitOfwWork(session_factory=sessionmaker)
 
     return get_test_uow
+
+
+@pytest.fixture(scope="session")
+def sms_service() -> services.SMSService:
+    """Provides a local SMS service instance for testing."""
+    return local_sms_service.LocalSMSService()

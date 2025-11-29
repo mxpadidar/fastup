@@ -25,3 +25,7 @@ class ConflictExc(BaseExc):
 
 class UnitOfWorkContextExc(InternalExc):
     message = "An operation was attempted outside of the active Unit of Work context."
+
+
+class SmsSendFailed(BaseExc):
+    message = "Failed to send SMS message."
