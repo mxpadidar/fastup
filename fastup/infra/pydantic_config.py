@@ -5,7 +5,7 @@ import secrets
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Config(BaseSettings):
+class PydanticConfig(BaseSettings):
     """Application settings
 
     Loaded from environment variables (e.g., `fastup_db_name=...`)
@@ -62,6 +62,6 @@ class Config(BaseSettings):
 
 
 @functools.cache
-def get_config() -> Config:
+def get_config() -> PydanticConfig:
     """Provides a singleton instance of the application configuration."""
-    return Config()
+    return PydanticConfig()

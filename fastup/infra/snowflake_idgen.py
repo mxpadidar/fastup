@@ -1,6 +1,6 @@
 from snowflakekit import SnowflakeConfig, SnowflakeGenerator
 
-from fastup.config import get_config
+from .pydantic_config import get_config
 
 config = get_config()
 

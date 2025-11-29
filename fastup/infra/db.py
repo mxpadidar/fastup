@@ -2,7 +2,7 @@ from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import registry
 
-from fastup.config import get_config
+from .pydantic_config import get_config
 
 config = get_config()
 

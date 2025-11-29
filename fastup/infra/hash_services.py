@@ -5,8 +5,9 @@ import secrets
 import pwdlib
 import pwdlib.exceptions
 
-from fastup.config import get_config
 from fastup.core.services import HashService
+
+from .pydantic_config import get_config
 
 config = get_config()
 

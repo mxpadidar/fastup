@@ -4,9 +4,9 @@ from contextlib import asynccontextmanager
 import fastapi
 from fastapi.exceptions import RequestValidationError
 
-from fastup.config import get_config
 from fastup.core.exceptions import BaseExc
 from fastup.infra.orm_mapper import start_orm_mapper
+from fastup.infra.pydantic_config import get_config
 
 from .v1.exc_handlers import core_exception_handler, http_validation_exception_handler
 from .v1.routes import router

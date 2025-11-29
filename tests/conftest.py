@@ -12,13 +12,14 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import clear_mappers
 
 from fastup.api import app, deps
-from fastup.config import Config
-from fastup.core import protocols, services, unit_of_work
+from fastup.core import services, unit_of_work
+from fastup.core.config import Config
 from fastup.infra import (
     db,
     hash_services,
     local_sms_service,
     orm_mapper,
+    pydantic_config,
     snowflake_idgen,
     sql_unit_of_work,
 )
@@ -102,9 +103,9 @@ def hmac_hasher() -> services.HashService:
 
 
 @pytest.fixture(scope="session")
-def config() -> protocols.CoreConf:
+def config() -> Config:
     """Provides the application configuration for testing."""
-    return Config()  # type: ignore
+    return pydantic_config.get_config()  # type: ignore
 
 
 @pytest.fixture

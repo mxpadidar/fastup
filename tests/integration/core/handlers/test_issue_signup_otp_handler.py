@@ -3,11 +3,11 @@ import datetime
 import pytest
 
 from fastup.core.commands import IssueSignupOtpCommand
+from fastup.core.config import Config
 from fastup.core.entities import Otp, User
 from fastup.core.enums import OtpIntent, UserSex
 from fastup.core.exceptions import ConflictExc
 from fastup.core.handlers import handle_issue_signup_otp
-from fastup.core.protocols import CoreConf
 from fastup.core.services import HashService, IDGenerator
 from fastup.core.unit_of_work import UnitOfWork
 
@@ -19,7 +19,7 @@ def cmd() -> IssueSignupOtpCommand:
 
 async def test_handle_issue_signup_otp_creates_and_persists_otp(
     cmd: IssueSignupOtpCommand,
-    config: CoreConf,
+    config: Config,
     uow: UnitOfWork,
     idgen: IDGenerator,
     hmac_hasher: HashService,
@@ -57,7 +57,7 @@ async def test_handle_issue_signup_otp_creates_and_persists_otp(
 
 async def test_handle_issue_signup_otp_sets_correct_expiration(
     cmd: IssueSignupOtpCommand,
-    config: CoreConf,
+    config: Config,
     uow: UnitOfWork,
     idgen: IDGenerator,
     hmac_hasher: HashService,
@@ -84,7 +84,7 @@ async def test_handle_issue_signup_otp_sets_correct_expiration(
 
 async def test_handle_issue_signup_otp_hashes_code_securely(
     cmd: IssueSignupOtpCommand,
-    config: CoreConf,
+    config: Config,
     uow: UnitOfWork,
     idgen: IDGenerator,
     hmac_hasher: HashService,
@@ -110,7 +110,7 @@ async def test_handle_issue_signup_otp_hashes_code_securely(
 
 async def test_handle_issue_signup_otp_raises_conflict_when_user_exists(
     cmd: IssueSignupOtpCommand,
-    config: CoreConf,
+    config: Config,
     uow: UnitOfWork,
     idgen: IDGenerator,
     hmac_hasher: HashService,
@@ -141,7 +141,7 @@ async def test_handle_issue_signup_otp_raises_conflict_when_user_exists(
 
 async def test_handle_issue_signup_otp_allows_multiple_otps_for_same_phone(
     cmd: IssueSignupOtpCommand,
-    config: CoreConf,
+    config: Config,
     uow: UnitOfWork,
     idgen: IDGenerator,
     hmac_hasher: HashService,

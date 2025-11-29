@@ -2,7 +2,7 @@ import datetime
 import typing
 
 
-class CoreConf(typing.Protocol):
+class Config(typing.Protocol):
     """Defines the central configuration contract for the application's core domain.
 
     This protocol ensures the domain layer is decoupled from the concrete

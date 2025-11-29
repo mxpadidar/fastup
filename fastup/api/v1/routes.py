@@ -5,9 +5,10 @@ from fastapi.routing import APIRouter
 
 from fastup.api import deps
 from fastup.api.v1 import req_models, resp_models
-from fastup.config import get_config
-from fastup.core import commands, enums, handlers, protocols, services
+from fastup.core import commands, enums, handlers, services
+from fastup.core.config import Config
 from fastup.core.unit_of_work import UnitOfWork
+from fastup.infra.pydantic_config import get_config
 
 router = APIRouter()
 
@@ -25,7 +26,7 @@ async def issue_otp(
     uow: Annotated[UnitOfWork, Depends(deps.get_uow)],
     idgen: Annotated[services.IDGenerator, Depends(deps.get_idgen)],
     hmac_hasher: Annotated[services.HashService, Depends(deps.get_hmac_hasher)],
-    config: Annotated[protocols.CoreConf, Depends(get_config)],
+    config: Annotated[Config, Depends(get_config)],
 ):
     """Issue an OTP for phone number verification.
 

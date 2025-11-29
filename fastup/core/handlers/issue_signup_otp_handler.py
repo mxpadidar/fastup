@@ -3,17 +3,17 @@ import secrets
 import string
 
 from fastup.core.commands import IssueSignupOtpCommand
+from fastup.core.config import Config
 from fastup.core.entities import Otp
 from fastup.core.enums import OtpIntent
 from fastup.core.exceptions import ConflictExc
-from fastup.core.protocols import CoreConf
 from fastup.core.services import HashService, IDGenerator
 from fastup.core.unit_of_work import UnitOfWork
 
 
 async def handle_issue_signup_otp(
     cmd: IssueSignupOtpCommand,
-    config: CoreConf,
+    config: Config,
     uow: UnitOfWork,
     idgen: IDGenerator,
     hmac_hasher: HashService,

@@ -4,11 +4,11 @@ from typing import Annotated
 from fastapi import Request
 from fastapi.params import Depends
 
-from fastup.config import Config, get_config
 from fastup.core import services
 from fastup.core.unit_of_work import UnitOfWork
 from fastup.infra import db
 from fastup.infra.hash_services import Argon2PasswordHasher, HMACHasher
+from fastup.infra.pydantic_config import PydanticConfig, get_config
 from fastup.infra.snowflake_idgen import SnowflakeIDGenerator
 from fastup.infra.sql_unit_of_work import SQLUnitOfwWork
 
@@ -20,7 +20,7 @@ async def get_uow() -> UnitOfWork:
 
 @functools.cache
 def get_idgen(
-    config: Annotated[Config, Depends(get_config)],
+    config: Annotated[PydanticConfig, Depends(get_config)],
 ) -> services.IDGenerator:
     """Provide singleton Snowflake ID generator instance."""
     return SnowflakeIDGenerator(
@@ -32,7 +32,7 @@ def get_idgen(
 
 @functools.cache
 def get_hmac_hasher(
-    config: Annotated[Config, Depends(get_config)],
+    config: Annotated[PydanticConfig, Depends(get_config)],
 ) -> services.HashService:
     """Provide singleton HMAC hasher instance."""
     return HMACHasher(key=config.hmac_secret_key)
