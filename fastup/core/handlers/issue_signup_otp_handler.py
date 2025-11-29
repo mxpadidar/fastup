@@ -6,6 +6,7 @@ from fastup.core.commands import IssueSignupOtpCommand
 from fastup.core.config import Config
 from fastup.core.entities import Otp
 from fastup.core.enums import OtpIntent
+from fastup.core.events import OtpIssuedEvent
 from fastup.core.exceptions import ConflictExc
 from fastup.core.services import HashService, IDGenerator
 from fastup.core.unit_of_work import UnitOfWork
@@ -56,6 +57,8 @@ async def handle_issue_signup_otp(
         )
 
         await uow.otps.add(otp)
+        event = OtpIssuedEvent(otp_id=otp_id, code=otp_code)
+        otp.record_event(event)
         await uow.commit()
 
         return otp
