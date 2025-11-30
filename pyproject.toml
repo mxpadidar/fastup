@@ -59,7 +59,7 @@ directory = ".cache/coverage"
 skip_empty = true
 skip_covered = true
 precision = 2
-omit = ["main.py", "deps.py"]
+omit = ["main.py", "deps.py", "app.py"]
 exclude_also = ["raise NotImplementedError"]
 
 [tool.alembic]
