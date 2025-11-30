@@ -1,50 +1,14 @@
-import functools
-from typing import Annotated
-
 from fastapi import Request
-from fastapi.params import Depends
 
-from fastup.core import services
-from fastup.core.unit_of_work import UnitOfWork
-from fastup.infra import db
-from fastup.infra.hash_services import Argon2PasswordHasher, HMACHasher
-from fastup.infra.pydantic_config import PydanticConfig, get_config
-from fastup.infra.snowflake_idgen import SnowflakeIDGenerator
-from fastup.infra.sql_unit_of_work import SQLUnitOfwWork
-
-
-async def get_uow() -> UnitOfWork:
-    """Provide Unit of Work instance for database operations."""
-    return SQLUnitOfwWork(session_factory=db.sessionmaker)
-
-
-@functools.cache
-def get_idgen(
-    config: Annotated[PydanticConfig, Depends(get_config)],
-) -> services.IDGenerator:
-    """Provide singleton Snowflake ID generator instance."""
-    return SnowflakeIDGenerator(
-        epoch=config.snowflake_epoch,
-        node_id=config.snowflake_node_id,
-        worker_id=config.snowflake_worker_id,
-    )
-
-
-@functools.cache
-def get_hmac_hasher(
-    config: Annotated[PydanticConfig, Depends(get_config)],
-) -> services.HashService:
-    """Provide singleton HMAC hasher instance."""
-    return HMACHasher(key=config.hmac_secret_key)
-
-
-@functools.cache
-def get_pwd_hasher() -> services.HashService:
-    """Provide singleton Argon2 password hasher instance."""
-    return Argon2PasswordHasher()
+from fastup.core.bus import MessageBus
 
 
 def get_ipaddr(request: Request) -> str:
     """Extract client IP address from the request."""
     assert request.client
     return request.client.host
+
+
+def get_bus(request: Request) -> MessageBus:
+    """Dependency to get the message bus from the application state."""
+    return request.app.state.bus

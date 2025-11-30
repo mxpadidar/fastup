@@ -1,4 +1,4 @@
-import typing
+from typing import AsyncGenerator, Callable
 
 import httpx
 import pytest
@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import clear_mappers
 
 from fastup.api import app, deps
-from fastup.core import services, unit_of_work
+from fastup.core import bus, repositories, services, unit_of_work
 from fastup.core.config import Config
 from fastup.infra import (
     db,
@@ -21,16 +21,17 @@ from fastup.infra import (
     orm_mapper,
     pydantic_config,
     snowflake_idgen,
+    sql_repositories,
     sql_unit_of_work,
 )
 
 
 @pytest.fixture
 async def async_client(
-    uow_provider: typing.Callable[[], unit_of_work.UnitOfWork],
-) -> typing.AsyncGenerator[httpx.AsyncClient, None]:
-    """Provide an async HTTP client for testing FastAPI endpoints."""
-    app.app.dependency_overrides[deps.get_uow] = uow_provider
+    bus_provider: Callable,
+) -> AsyncGenerator[httpx.AsyncClient, None]:
+    """Provides an async HTTP client for testing FastAPI endpoints."""
+    app.app.dependency_overrides[deps.get_bus] = bus_provider
     async with httpx.AsyncClient(
         transport=httpx.ASGITransport(app=app.app), base_url="http://test"
     ) as client:
@@ -38,7 +39,7 @@ async def async_client(
 
 
 @pytest.fixture(scope="session")
-async def db_engine() -> typing.AsyncGenerator[AsyncEngine, None]:
+async def db_engine() -> AsyncGenerator[AsyncEngine, None]:
     """Session-scoped engine bound to an in-memory SQLite DB."""
     orm_mapper.start_orm_mapper()
     engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
@@ -50,9 +51,7 @@ async def db_engine() -> typing.AsyncGenerator[AsyncEngine, None]:
 
 
 @pytest.fixture
-async def db_conn(
-    db_engine: AsyncEngine,
-) -> typing.AsyncGenerator[AsyncConnection, None]:
+async def db_conn(db_engine: AsyncEngine) -> AsyncGenerator[AsyncConnection, None]:
     """Open a per-test DB connection inside a transaction.
     Roll back after the test to reset state."""
     async with db_engine.connect() as conn:
@@ -72,7 +71,7 @@ def sessionmaker(db_conn: AsyncConnection) -> async_sessionmaker[AsyncSession]:
 @pytest.fixture
 async def db_session(
     sessionmaker: async_sessionmaker[AsyncSession],
-) -> typing.AsyncGenerator[AsyncSession, None]:
+) -> AsyncGenerator[AsyncSession, None]:
     """Provide an AsyncSession using the shared test transaction."""
     async with sessionmaker() as session:
         yield session
@@ -80,8 +79,8 @@ async def db_session(
 
 @pytest.fixture
 def uow(sessionmaker: async_sessionmaker[AsyncSession]) -> unit_of_work.UnitOfWork:
-    """Provide a SQL-based Unit of Work instance for testing database operations."""
-    return sql_unit_of_work.SQLUnitOfwWork(sessionmaker)
+    """Provides a SQL-based Unit of Work instance for testing database operations."""
+    return sql_unit_of_work.SQLUnitOfwWork(session_factory=sessionmaker)
 
 
 @pytest.fixture(scope="session")
@@ -99,28 +98,56 @@ def argon2_hasher() -> services.HashService:
 @pytest.fixture(scope="session")
 def hmac_hasher() -> services.HashService:
     """Provides an instance of the HMAC hasher with the application secret key."""
-    return hash_services.HMACHasher()
+    return hash_services.HMACHasher(key=b"asdf")
+
+
+@pytest.fixture
+def user_repo(db_session: AsyncSession) -> repositories.UserRepo:
+    """Provides a UserSQLRepo instance with an active session."""
+    return sql_repositories.UserSQLRepo(db_session)
 
 
 @pytest.fixture(scope="session")
 def config() -> Config:
-    """Provides the application configuration for testing."""
     return pydantic_config.get_config()  # type: ignore
-
-
-@pytest.fixture
-def uow_provider(
-    sessionmaker: async_sessionmaker[AsyncSession],
-) -> typing.Callable[[], unit_of_work.UnitOfWork]:
-    """Provides a UnitOfWork factory function for dependency injection in tests."""
-
-    def get_test_uow() -> unit_of_work.UnitOfWork:
-        return sql_unit_of_work.SQLUnitOfwWork(session_factory=sessionmaker)
-
-    return get_test_uow
 
 
 @pytest.fixture(scope="session")
 def sms_service() -> services.SMSService:
     """Provides a local SMS service instance for testing."""
     return local_sms_service.LocalSMSService()
+
+
+@pytest.fixture
+def bus_provider(
+    config: Config,
+    uow: unit_of_work.UnitOfWork,
+    idgen: services.IDGenerator,
+    hmac_hasher: services.HashService,
+    argon2_hasher: services.HashService,
+    sms_service: services.SMSService,
+) -> Callable[[], bus.MessageBus]:
+    """Provides a bus factory for overriding the default bus in tests."""
+    deps = {
+        "config": config,
+        "uow": uow,
+        "idgen": idgen,
+        "hmac_hasher": hmac_hasher,
+        "pwd_hasher": argon2_hasher,
+        "sms_service": sms_service,
+    }
+    msgbus = bus.MessageBus(
+        event_handlers={
+            ev: [bus.inject_dependencies(h, deps) for h in handlers]
+            for ev, handlers in bus.EVENT_HANDLERS.items()
+        },
+        command_handlers={
+            cmd: bus.inject_dependencies(h, deps)
+            for cmd, h in bus.COMMAND_HANDLERS.items()
+        },
+    )
+
+    def get_bus_override() -> bus.MessageBus:
+        return msgbus
+
+    return get_bus_override
