@@ -2,6 +2,7 @@ import datetime
 import secrets
 import string
 
+from fastup.core.bus import register_command
 from fastup.core.commands import IssueSignupOtpCommand
 from fastup.core.config import Config
 from fastup.core.entities import Otp
@@ -12,6 +13,7 @@ from fastup.core.services import HashService, IDGenerator
 from fastup.core.unit_of_work import UnitOfWork
 
 
+@register_command(IssueSignupOtpCommand)
 async def handle_issue_signup_otp(
     cmd: IssueSignupOtpCommand,
     config: Config,

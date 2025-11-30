@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+from fastup.core.bus import register_event
 from fastup.core.enums import OtpStatus
 from fastup.core.events import OtpIssuedEvent
 from fastup.core.exceptions import SmsSendFailed
@@ -10,6 +11,7 @@ from fastup.core.unit_of_work import UnitOfWork
 logger = logging.getLogger(__name__)
 
 
+@register_event(OtpIssuedEvent)
 async def handle_otp_issued_event(
     event: OtpIssuedEvent, uow: UnitOfWork, sms_service: SMSService
 ) -> None:
