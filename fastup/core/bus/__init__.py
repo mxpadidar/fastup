@@ -1,3 +1,4 @@
+from .injector import inject_dependencies
 from .registry import (
     COMMAND_HANDLERS,
     EVENT_HANDLERS,
@@ -12,4 +13,5 @@ __all__ = [
     "COMMAND_HANDLERS",
     "register_command",
     "register_event",
+    "inject_dependencies",
 ]
