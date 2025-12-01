@@ -23,3 +23,8 @@ class Otp(Entity):
     created_at: datetime.datetime = dataclasses.field(init=False)
     expires_at: datetime.datetime
     consumed_at: datetime.datetime | None = None
+
+    @property
+    def is_expired(self) -> bool:
+        """Check if the OTP has expired based on the current time."""
+        return datetime.datetime.now(datetime.UTC) >= self.expires_at

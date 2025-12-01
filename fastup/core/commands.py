@@ -18,3 +18,10 @@ class Command:
 class IssueSignupOtpCommand(Command):
     phone: str
     ipaddr: str
+
+
+@dataclasses.dataclass(frozen=True)
+class VerifyOtpCommand(Command):
+    otp_id: int
+    code: str
+    ipaddr: str

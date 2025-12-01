@@ -29,3 +29,11 @@ class UnitOfWorkContextExc(InternalExc):
 
 class SmsSendFailed(BaseExc):
     message = "Failed to send SMS message."
+
+
+class AccessDeniedExc(BaseExc):
+    message = "Access to the requested resource is denied."
+
+
+class AttemptLimitReached(BaseExc):
+    message = "The maximum number of allowed attempts has been reached."
