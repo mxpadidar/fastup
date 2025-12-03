@@ -3,6 +3,7 @@ from typing import AsyncGenerator, Callable
 
 import httpx
 import pytest
+from redis.asyncio.client import Redis
 from sqlalchemy.ext.asyncio import (
     AsyncConnection,
     AsyncEngine,
@@ -22,6 +23,7 @@ from fastup.infra import (
     orm_mapper,
     pydantic_config,
     pyjwt_service,
+    redis_publisher,
     snowflake_idgen,
     sql_repositories,
     sql_unit_of_work,
@@ -128,6 +130,7 @@ def bus_provider(
     hmac_hasher: services.HashService,
     argon2_hasher: services.HashService,
     sms_service: services.SMSService,
+    publisher: services.Publisher,
 ) -> Callable[[], bus.MessageBus]:
     """Provides a bus factory for overriding the default bus in tests."""
     queue = asyncio.Queue()
@@ -139,6 +142,7 @@ def bus_provider(
         "pwd_hasher": argon2_hasher,
         "sms_service": sms_service,
         "event_queue": queue,
+        "publisher": publisher,
     }
     msgbus = bus.MessageBus(
         event_handlers={
@@ -161,3 +165,25 @@ def bus_provider(
 @pytest.fixture(scope="session")
 def jwt_service() -> pyjwt_service.PyJWTService:
     return pyjwt_service.PyJWTService(secret_key="test-secret-key")
+
+
+@pytest.fixture(scope="session")
+async def redis(
+    config: pydantic_config.PydanticConfig,
+) -> AsyncGenerator[Redis, None]:
+    """Provide a Redis client for testing."""
+    redis = Redis(
+        host=config.redis_host,
+        port=config.redis_port,
+        db=config.redis_db + 1,
+        decode_responses=True,
+    )
+    yield redis
+    await redis.flushdb()
+    await redis.aclose()
+
+
+@pytest.fixture
+def publisher(redis: Redis) -> services.Publisher:
+    """Provide a RedisPublisher instance."""
+    return redis_publisher.RedisPublisher(redis)
