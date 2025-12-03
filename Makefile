@@ -1,13 +1,19 @@
 PACKAGE ?= fastup
 MAKEFLAGS += --no-print-directory
 
+DATA_DIR = ${PWD}/.cache
+
 PG_NAME = fastup_dev
 PG_USER = fastup
 PG_PASSWORD = secret
 PG_PORT = 5432
 PG_IMAGE = docker.io/library/postgres:18.0-trixie
 PG_CONTAINER = fastup-postgres
-DATA_DIR = ${PWD}/.cache
+
+REDIS_CONTAINER = fastup-redis
+REDIS_IMAGE = docker.io/library/redis:8.4.0-alpine
+REDIS_PORT = 6379
+
 
 .PHONY: all run install fmt lint type-check test
 all: install fmt lint type-check test
@@ -72,3 +78,25 @@ migrate:
 rollback-migration:
 		@uv run alembic downgrade -1
 		@echo "-> consider manually removing the migration file if necessary."
+
+.PHONY: redisup redisdown rediscli redisclean
+redisup:
+	@mkdir -p $(DATA_DIR)/redis
+	@podman run --replace -d \
+		--name $(REDIS_CONTAINER) \
+		-p $(REDIS_PORT):6379 \
+		-v $(DATA_DIR)/redis:/data \
+		$(REDIS_IMAGE) redis-server --appendonly yes >/dev/null
+	@echo "-> Redis is ready"
+
+redisdown:
+	@echo "-> stopping Redis container"
+	@podman stop $(REDIS_CONTAINER) >/dev/null 2>&1 || true
+
+redisclean: redisdown
+	@echo "-> cleaning up Redis container and data volume"
+	@podman rm -f $(REDIS_CONTAINER) >/dev/null 2>&1 || true
+	@sudo rm -rf $(REDIS_DATA)
+
+rediscli:
+	@podman exec -it $(REDIS_CONTAINER) redis-cli
