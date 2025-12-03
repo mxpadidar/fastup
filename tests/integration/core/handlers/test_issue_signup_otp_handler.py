@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 
 import pytest
@@ -13,6 +14,11 @@ from fastup.core.unit_of_work import UnitOfWork
 
 
 @pytest.fixture
+def event_queue() -> asyncio.Queue:
+    return asyncio.Queue()
+
+
+@pytest.fixture
 def cmd() -> IssueSignupOtpCommand:
     return IssueSignupOtpCommand(phone="+989111234567", ipaddr="127.0.0.1")
 
@@ -23,11 +29,10 @@ async def test_handle_issue_signup_otp_creates_and_persists_otp(
     uow: UnitOfWork,
     idgen: IDGenerator,
     hmac_hasher: HashService,
+    event_queue: asyncio.Queue,
 ):
-    """
-    Verifies that the handler creates and persists a new OTP entity
-    for a new phone number.
-    """
+    """Verifies that the handler creates and persists a new OTP entity
+    for a new phone number."""
     # Act
     otp = await handle_issue_signup_otp(
         cmd=cmd,
@@ -35,6 +40,7 @@ async def test_handle_issue_signup_otp_creates_and_persists_otp(
         uow=uow,
         idgen=idgen,
         hmac_hasher=hmac_hasher,
+        event_queue=event_queue,
     )
 
     # Assert
@@ -61,17 +67,22 @@ async def test_handle_issue_signup_otp_sets_correct_expiration(
     uow: UnitOfWork,
     idgen: IDGenerator,
     hmac_hasher: HashService,
+    event_queue: asyncio.Queue,
 ):
     """
     Verifies that the handler sets the OTP expiration time correctly
-    based on the config's otp_lifetime.
-    """
+    based on the config's otp_lifetime."""
     # Arrange
     before_time = datetime.datetime.now(datetime.UTC)
 
     # Act
     otp = await handle_issue_signup_otp(
-        cmd=cmd, config=config, uow=uow, idgen=idgen, hmac_hasher=hmac_hasher
+        cmd=cmd,
+        config=config,
+        uow=uow,
+        idgen=idgen,
+        hmac_hasher=hmac_hasher,
+        event_queue=event_queue,
     )
 
     # Assert
@@ -88,11 +99,10 @@ async def test_handle_issue_signup_otp_hashes_code_securely(
     uow: UnitOfWork,
     idgen: IDGenerator,
     hmac_hasher: HashService,
+    event_queue: asyncio.Queue,
 ):
-    """
-    Verifies that the handler hashes the OTP code and does not store
-    it in plain text.
-    """
+    """Verifies that the handler hashes the OTP code and does not store
+    it in plain text."""
     # Act
     otp = await handle_issue_signup_otp(
         cmd=cmd,
@@ -100,6 +110,7 @@ async def test_handle_issue_signup_otp_hashes_code_securely(
         uow=uow,
         idgen=idgen,
         hmac_hasher=hmac_hasher,
+        event_queue=event_queue,
     )
 
     # Assert: The stored hash should not be a simple digit string
@@ -114,11 +125,10 @@ async def test_handle_issue_signup_otp_raises_conflict_when_user_exists(
     uow: UnitOfWork,
     idgen: IDGenerator,
     hmac_hasher: HashService,
+    event_queue: asyncio.Queue,
 ):
-    """
-    Verifies that the handler raises ConflictExc when the phone number
-    is already registered to an existing user.
-    """
+    """Verifies that the handler raises ConflictExc when the phone number
+    is already registered to an existing user."""
     # Arrange: Create an existing user with the same phone
     async with uow:
         user_id = await idgen.next_id()
@@ -136,6 +146,7 @@ async def test_handle_issue_signup_otp_raises_conflict_when_user_exists(
             uow=uow,
             idgen=idgen,
             hmac_hasher=hmac_hasher,
+            event_queue=event_queue,
         )
 
 
@@ -145,11 +156,10 @@ async def test_handle_issue_signup_otp_allows_multiple_otps_for_same_phone(
     uow: UnitOfWork,
     idgen: IDGenerator,
     hmac_hasher: HashService,
+    event_queue: asyncio.Queue,
 ):
-    """
-    Verifies that the handler can create multiple OTPs for the same
-    phone number (for retry scenarios).
-    """
+    """Verifies that the handler can create multiple OTPs for the same
+    phone number (for retry scenarios)."""
     # Act: Create two OTPs for the same phone number
     otp1 = await handle_issue_signup_otp(
         cmd=cmd,
@@ -157,6 +167,7 @@ async def test_handle_issue_signup_otp_allows_multiple_otps_for_same_phone(
         uow=uow,
         idgen=idgen,
         hmac_hasher=hmac_hasher,
+        event_queue=event_queue,
     )
     otp2 = await handle_issue_signup_otp(
         cmd=cmd,
@@ -164,6 +175,7 @@ async def test_handle_issue_signup_otp_allows_multiple_otps_for_same_phone(
         uow=uow,
         idgen=idgen,
         hmac_hasher=hmac_hasher,
+        event_queue=event_queue,
     )
 
     # Assert: Both OTPs should be distinct

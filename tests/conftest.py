@@ -1,3 +1,4 @@
+import asyncio
 from typing import AsyncGenerator, Callable
 
 import httpx
@@ -129,6 +130,7 @@ def bus_provider(
     sms_service: services.SMSService,
 ) -> Callable[[], bus.MessageBus]:
     """Provides a bus factory for overriding the default bus in tests."""
+    queue = asyncio.Queue()
     deps = {
         "config": config,
         "uow": uow,
@@ -136,6 +138,7 @@ def bus_provider(
         "hmac_hasher": hmac_hasher,
         "pwd_hasher": argon2_hasher,
         "sms_service": sms_service,
+        "event_queue": queue,
     }
     msgbus = bus.MessageBus(
         event_handlers={
@@ -146,6 +149,7 @@ def bus_provider(
             cmd: bus.inject_dependencies(h, deps)
             for cmd, h in bus.COMMAND_HANDLERS.items()
         },
+        queue=queue,
     )
 
     def get_bus_override() -> bus.MessageBus:

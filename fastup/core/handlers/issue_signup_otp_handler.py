@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import secrets
 import string
@@ -20,6 +21,7 @@ async def handle_issue_signup_otp(
     uow: UnitOfWork,
     idgen: IDGenerator,
     hmac_hasher: HashService,
+    event_queue: asyncio.Queue,
 ) -> Otp:
     """Handle signup OTP issuance.
 
@@ -59,8 +61,9 @@ async def handle_issue_signup_otp(
         )
 
         await uow.otps.add(otp)
-        event = OtpIssuedEvent(otp_id=otp_id, code=otp_code)
-        otp.record_event(event)
         await uow.commit()
+
+        event = OtpIssuedEvent(otp_id=otp_id, code=otp_code)
+        event_queue.put_nowait(event)
 
         return otp

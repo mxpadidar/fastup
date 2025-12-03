@@ -1,3 +1,5 @@
+import asyncio
+
 from fastup.core import bus
 from fastup.core.config import Config
 from fastup.infra.hash_services import Argon2PasswordHasher, HMACHasher
@@ -30,6 +32,8 @@ def bootstrap(config: Config | None = None, start_orm: bool = True) -> bus.Messa
     if start_orm:
         start_orm_mapper()
 
+    queue = asyncio.Queue()
+
     deps = {
         "config": config or get_config(),
         "uow": SQLUnitOfwWork(),
@@ -37,6 +41,7 @@ def bootstrap(config: Config | None = None, start_orm: bool = True) -> bus.Messa
         "hmac_hasher": HMACHasher(),
         "pwd_hasher": Argon2PasswordHasher(),
         "sms_service": LocalSMSService(),
+        "event_queue": queue,
     }
 
     try:
@@ -49,6 +54,7 @@ def bootstrap(config: Config | None = None, start_orm: bool = True) -> bus.Messa
                 cmd: bus.inject_dependencies(h, deps)
                 for cmd, h in bus.COMMAND_HANDLERS.items()
             },
+            queue=queue,
         )
     except RuntimeError as e:
         raise e

@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import typing
 
 from fastup.core.commands import Command
 from fastup.core.entities import Entity
@@ -18,14 +17,17 @@ class MessageBus:
         self,
         command_handlers: dict[type[Command], Handler],
         event_handlers: dict[type[Event], list[Handler]],
+        queue: asyncio.Queue[Event],
     ) -> None:
         """Initialize the message bus with command and event handlers.
 
         :param command_handlers: mapping Command class -> async callable
         :param event_handlers: mapping Event class -> set of async callables
+        :param queue: An asyncio queue for managing internal events.
         """
         self.command_handlers = command_handlers
         self.event_handlers = event_handlers
+        self.queue = queue
 
     async def handle(self, command: Command) -> Entity:
         """Handle a command by dispatching it to the appropriate handler.
@@ -43,33 +45,35 @@ class MessageBus:
             raise RuntimeError(f"No handler registered for {command.name=}")
 
         logger.debug(f"handling {command.name=}")
-
         entity = await handler(command)
-        events = entity.events
-        if events:
-            await self.dispatch_events(events)
-            entity.events.clear()
-
+        await self._dispatch_events()
         return entity
 
-    async def dispatch_events(self, events: set[Event]) -> None:
-        """Dispatch a set of events to their registered handlers concurrently.
+    async def _dispatch_events(self) -> None:
+        """Process all pending events in the queue.
 
-        For each event, finds the corresponding handlers and schedules them to run
-        asynchronously. If no handlers are found for an event, logs a warning.
+        Pulls events from the internal queue until it's empty and invokes
+        all registered handlers for each event."""
+        while True:
+            try:
+                event = self.queue.get_nowait()
+            except asyncio.QueueEmpty:
+                break
 
-        :param events: Set of event instances to dispatch.
-        """
-        tasks: list[typing.Awaitable[None]] = []
-
-        for ev in events:
-            handlers = self.event_handlers.get(ev.type)
-            if not handlers:
-                logging.warning(f"No handler rgistered for {ev.name=}")
+            if not isinstance(event, Event):
+                logger.warning(f"Invalid event in queue: {event}")
                 continue
-            tasks.extend([h(ev) for h in handlers])
 
-        if not tasks:
-            return
+            handlers = self.event_handlers.get(event.type, [])
+            if not handlers:
+                logger.warning(f"No handler registered for {event.name=}")
+                continue
 
-        await asyncio.gather(*tasks)
+            logger.debug(f"dispatching {event.name=}")
+
+            for handler in handlers:
+                try:
+                    await handler(event)
+                    logger.debug(f"handled {event.name=} with {handler.__name__}")
+                except Exception as exc:
+                    logger.error(f"Error handling event {event.name=}: {exc}")
