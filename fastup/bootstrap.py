@@ -1,16 +1,19 @@
 import asyncio
 
 from fastup.core import bus
-from fastup.core.config import Config
 from fastup.infra.hash_services import Argon2PasswordHasher, HMACHasher
 from fastup.infra.local_sms_service import LocalSMSService
 from fastup.infra.orm_mapper import start_orm_mapper
-from fastup.infra.pydantic_config import get_config
+from fastup.infra.pydantic_config import PydanticConfig, get_config
+from fastup.infra.redis_client import redis_client_provider
+from fastup.infra.redis_publisher import RedisPublisher
 from fastup.infra.snowflake_idgen import SnowflakeIDGenerator
 from fastup.infra.sql_unit_of_work import SQLUnitOfwWork
 
 
-def bootstrap(config: Config | None = None, start_orm: bool = True) -> bus.MessageBus:
+def bootstrap(
+    config: PydanticConfig | None = None, start_orm: bool = True
+) -> bus.MessageBus:
     """Build the application's MessageBus.
 
     The handlers signatures are inspected and dependencies are injected,
@@ -29,10 +32,14 @@ def bootstrap(config: Config | None = None, start_orm: bool = True) -> bus.Messa
     # Without this import, no handlers get registered at runtime.
     from fastup.core import handlers  # noqa: F401
 
+    config = config or get_config()
+
     if start_orm:
         start_orm_mapper()
 
     queue = asyncio.Queue()
+
+    redis = redis_client_provider()
 
     deps = {
         "config": config or get_config(),
@@ -42,6 +49,7 @@ def bootstrap(config: Config | None = None, start_orm: bool = True) -> bus.Messa
         "pwd_hasher": Argon2PasswordHasher(),
         "sms_service": LocalSMSService(),
         "event_queue": queue,
+        "publisher": RedisPublisher(redis),
     }
 
     try:

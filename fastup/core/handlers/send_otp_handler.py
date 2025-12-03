@@ -2,10 +2,10 @@ import datetime
 import logging
 
 from fastup.core.bus import register_event
-from fastup.core.enums import OtpStatus
+from fastup.core.enums import EventType, OtpStatus
 from fastup.core.events import OtpIssuedEvent
 from fastup.core.exceptions import SmsSendFailed
-from fastup.core.services import SMSService
+from fastup.core.services import Publisher, SMSService
 from fastup.core.unit_of_work import UnitOfWork
 
 logger = logging.getLogger(__name__)
@@ -13,7 +13,10 @@ logger = logging.getLogger(__name__)
 
 @register_event(OtpIssuedEvent)
 async def handle_otp_issued_event(
-    event: OtpIssuedEvent, uow: UnitOfWork, sms_service: SMSService
+    event: OtpIssuedEvent,
+    uow: UnitOfWork,
+    sms_service: SMSService,
+    publisher: Publisher,
 ) -> None:
     """Send signup OTP via SMS and record delivery metadata.
 
@@ -24,6 +27,7 @@ async def handle_otp_issued_event(
     :param event: OtpIssuedEvent instance containing `otp_id` and `code`.
     :param uow: UnitOfWork used to load the OTP record and persist status/metadata.
     :param sms_service: SMSService implementation used to deliver the SMS.
+    :param publisher: Publisher for publishing sent notifications.
     :raises SmsSendFailed: If the SMS sending fails.
     :raises Exception: Re-raises exceptions from the SMS provider or UoW"""
 
@@ -40,6 +44,17 @@ async def handle_otp_issued_event(
         try:
             message_id = await sms_service.send_otp(
                 phone=otp.phone, otp_code=event.code, intent=otp.intent
+            )
+            await publisher.publish(
+                type=EventType.NOTIFICATION,
+                payload={
+                    "event": "otp_sent",  # alternative to "name"
+                    "timestamp": datetime.datetime.now(datetime.UTC).isoformat(),
+                    "data": {
+                        "otp_id": event.otp_id,
+                        "phone": f"***{otp.phone[-4:]}",  # mask for privacy
+                    },
+                },
             )
         except SmsSendFailed as e:
             logger.error(

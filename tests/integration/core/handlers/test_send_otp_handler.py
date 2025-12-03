@@ -13,6 +13,7 @@ from fastup.core.exceptions import SmsSendFailed
 from fastup.core.handlers import handle_otp_issued_event
 from fastup.core.services import HashService, SMSService
 from fastup.core.unit_of_work import UnitOfWork
+from fastup.infra.redis_publisher import RedisPublisher
 
 
 class MockSMS(SMSService):
@@ -57,8 +58,11 @@ async def test_handle_otp_issued_event_sends_sms_and_updates_status(
     """Verifies that the handler sends an SMS and updates the OTP status."""
 
     mock_sms = MockSMS()
+    mock_publisher = MagicMock(spec=RedisPublisher)
 
-    await handle_otp_issued_event(event=event, uow=uow, sms_service=mock_sms)
+    await handle_otp_issued_event(
+        event=event, uow=uow, sms_service=mock_sms, publisher=mock_publisher
+    )
 
     msgid, _ = mock_sms.deliveries.pop()
 
@@ -76,8 +80,11 @@ async def test_handle_otp_issued_event_logs_warning_when_otp_not_found(uow: Unit
 
     mock_sms = MockSMS()
     event = OtpIssuedEvent(otp_id=999, code="123456")  # Non-existent OTP ID
+    mock_publisher = MagicMock(spec=RedisPublisher)
 
-    await handle_otp_issued_event(event=event, uow=uow, sms_service=mock_sms)
+    await handle_otp_issued_event(
+        event=event, uow=uow, sms_service=mock_sms, publisher=mock_publisher
+    )
 
     assert len(mock_sms.deliveries) == 0
 
@@ -91,6 +98,27 @@ async def test_handle_otp_issued_event_raises_exception_when_sms_send_fails(
     failing_sms.send_otp = AsyncMock(
         side_effect=SmsSendFailed("Failed to send SMS message.")
     )
+    mock_publisher = MagicMock(spec=RedisPublisher)
 
     with pytest.raises(SmsSendFailed):
-        await handle_otp_issued_event(event=event, uow=uow, sms_service=failing_sms)
+        await handle_otp_issued_event(
+            event=event, uow=uow, sms_service=failing_sms, publisher=mock_publisher
+        )
+
+
+async def test_handle_otp_issued_event_publishes_sse(
+    event: OtpIssuedEvent, uow: UnitOfWork
+):
+    """Verify that OTP handler sends SMS and publishes SSE message."""
+
+    mock_sms = MockSMS()
+    mock_publisher = AsyncMock(spec=RedisPublisher)
+
+    await handle_otp_issued_event(
+        event=event, uow=uow, sms_service=mock_sms, publisher=mock_publisher
+    )
+
+    assert mock_publisher.publish.await_count == 1
+    call_args = mock_publisher.publish.call_args[1]  # kwargs
+    assert call_args["type"] == enums.EventType.NOTIFICATION
+    assert call_args["payload"]["event"] == "otp_sent"
