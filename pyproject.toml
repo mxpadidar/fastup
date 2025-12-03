@@ -16,6 +16,7 @@ dependencies = [
     "pwdlib[argon2]>=0.3.0",
     "pydantic-extra-types[phonenumbers]>=2.10.6",
     "pyjwt>=2.10.1",
+    "redis>=7.1.0",
 ]
 
 [dependency-groups]

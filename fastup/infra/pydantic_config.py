@@ -49,6 +49,11 @@ class PydanticConfig(BaseSettings):
     jwt_secret_key: str = secrets.token_urlsafe(32)
     signup_token_ttl_sec: int = 900  # 15 minutes
 
+    # --- REDIS Configuration ---
+    redis_host: str = "localhost"
+    redis_port: int = 6379
+    redis_db: int = 0
+
     # --- Computed fields that implement the CoreConf protocol ---
     @property
     def otp_lifetime(self) -> datetime.timedelta:  # pragma: no cover
