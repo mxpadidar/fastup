@@ -21,3 +21,7 @@ class OtpStatus(enum.StrEnum):
     ISSUED = enum.auto()
     SENT = enum.auto()
     CONSUMED = enum.auto()
+
+
+class EventType(enum.StrEnum):
+    NOTIFICATION = enum.auto()  # Server-Sent Events
