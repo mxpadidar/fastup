@@ -13,3 +13,9 @@ class OtpResp(pydantic.BaseModel):
     id: int
     status: enums.OtpStatus
     expires_at: datetime.datetime
+
+
+class TokenResp(pydantic.BaseModel):
+    raw: str
+    exp: datetime.datetime
+    typ: str

@@ -11,6 +11,8 @@ logger = logging.getLogger(__name__)
 exc_map = {
     exceptions.NotFoundExc: status.HTTP_404_NOT_FOUND,
     exceptions.ConflictExc: status.HTTP_409_CONFLICT,
+    exceptions.AccessDeniedExc: status.HTTP_403_FORBIDDEN,
+    exceptions.AttemptLimitReached: status.HTTP_429_TOO_MANY_REQUESTS,
 }
 
 

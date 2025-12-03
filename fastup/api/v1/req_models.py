@@ -13,3 +13,7 @@ class E164Phone(PhoneNumber):
 class IssueOtpReq(pydantic.BaseModel):
     phone: E164Phone
     intent: enums.OtpIntent
+
+
+class VerifyOtpReq(pydantic.BaseModel):
+    code: int
