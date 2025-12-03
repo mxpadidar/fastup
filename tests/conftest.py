@@ -20,6 +20,7 @@ from fastup.infra import (
     local_sms_service,
     orm_mapper,
     pydantic_config,
+    pyjwt_service,
     snowflake_idgen,
     sql_repositories,
     sql_unit_of_work,
@@ -151,3 +152,8 @@ def bus_provider(
         return msgbus
 
     return get_bus_override
+
+
+@pytest.fixture(scope="session")
+def jwt_service() -> pyjwt_service.PyJWTService:
+    return pyjwt_service.PyJWTService(secret_key="test-secret-key")
