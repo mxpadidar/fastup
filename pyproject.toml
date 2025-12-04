@@ -46,6 +46,8 @@ pythonpath = "."
 addopts = "-q --tb=line --maxfail=1"
 console_output_style = "count"
 log_cli = false
+log_cli_level = "INFO"
+log_cli_format = "[%(name)s]  -- %(message)s"
 cache_dir = ".cache/pytest"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "session"
