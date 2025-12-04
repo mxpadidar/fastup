@@ -86,3 +86,26 @@ async def test_uow_exiting_context_implicitly_rolls_back_uncommitted_changes(
     # Assert: The user does not exist in a separate session
     persisted_user = await db_session.get(User, sample_user.id)
     assert persisted_user is None
+
+
+async def test_uow_commit_raises_conflictexc_on_integrity_error(
+    uow: SQLUnitOfwWork, sample_user: User
+):
+    """Verifies that if a commit fails due to IntegrityError, the UoW
+    rolls back and raises ConflictExc.
+    """
+
+    new_user = User(
+        id=1_000_002,
+        phone=sample_user.phone,
+        pwdhash="anotherpwd",
+        sex=UserSex.MALE,
+    )
+
+    async with uow:
+        await uow.users.add(sample_user)
+        await uow.commit()
+
+        await uow.users.add(new_user)  # duplicate insert
+        with pytest.raises(exceptions.ConflictExc):
+            await uow.commit()

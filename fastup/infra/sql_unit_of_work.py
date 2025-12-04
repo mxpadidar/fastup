@@ -1,5 +1,6 @@
 import typing
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from fastup.core import exceptions
@@ -49,7 +50,11 @@ class SQLUnitOfwWork(UnitOfWork):
 
     async def _commit(self) -> None:
         """Commit the current transaction."""
-        await self.session.commit()
+        try:
+            await self.session.commit()
+        except IntegrityError as exc:
+            await self.session.rollback()
+            raise exceptions.ConflictExc from exc
 
     async def _rollback(self) -> None:
         """Rollback the current transaction."""

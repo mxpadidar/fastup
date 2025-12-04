@@ -1,7 +1,10 @@
 import abc
+import logging
 import typing
 
 from fastup.core import exceptions, repositories
+
+logger = logging.getLogger(__name__)
 
 
 class UnitOfWork(abc.ABC):
@@ -22,10 +25,22 @@ class UnitOfWork(abc.ABC):
         """Commit the current transaction.
 
         :raises UnitOfWorkContextExc: If the UoW is not ready.
+        :raises ConflictExc: If a conflict occurs during commit.
+        :raises InternalExc: If any unexpected error occurs during commit.
         """
         if not self.is_ready:
             raise exceptions.UnitOfWorkContextExc
-        await self._commit()
+        try:
+            await self._commit()
+        except exceptions.ConflictExc:
+            raise
+        except Exception as exc:
+            await self.rollback()
+            logger.exception("Internal error during UoW commit: %s", exc)
+            raise exceptions.InternalExc(
+                "An internal error occurred during commit.",
+                extra={"original_exception": str(exc)},
+            )
 
     async def rollback(self) -> None:
         """Rollback the current transaction."""
@@ -39,6 +54,10 @@ class UnitOfWork(abc.ABC):
 
     @abc.abstractmethod
     async def _commit(self) -> None:
+        """Commit the current transaction.
+
+        :raises ConflictExc: If a conflict occurs during commit.
+        """
         raise NotImplementedError
 
     @abc.abstractmethod

@@ -1,10 +1,12 @@
 import asyncio
 import logging
+import warnings
 from typing import AsyncGenerator, Callable
 
 import httpx
 import pytest
 from redis.asyncio.client import Redis
+from sqlalchemy import exc as sa_exc
 from sqlalchemy.ext.asyncio import (
     AsyncConnection,
     AsyncEngine,
@@ -30,6 +32,8 @@ from fastup.infra import (
     sql_repositories,
     sql_unit_of_work,
 )
+
+warnings.filterwarnings("ignore", category=sa_exc.SAWarning)
 
 
 @pytest.fixture
@@ -66,7 +70,8 @@ async def db_conn(db_engine: AsyncEngine) -> AsyncGenerator[AsyncConnection, Non
         try:
             yield conn
         finally:
-            await trans.rollback()  # Rollback resets DB state for the next test
+            if trans.is_active:
+                await trans.rollback()  # Rollback if not already rolled back
 
 
 @pytest.fixture
