@@ -147,7 +147,7 @@ def bus_provider(
         "uow": uow,
         "idgen": idgen,
         "hmac_hasher": hmac_hasher,
-        "pwd_hasher": argon2_hasher,
+        "argon2_hasher": argon2_hasher,
         "sms_service": sms_service,
         "event_queue": queue,
         "publisher": publisher,

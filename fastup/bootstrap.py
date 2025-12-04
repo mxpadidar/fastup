@@ -46,7 +46,7 @@ def bootstrap(
         "uow": SQLUnitOfwWork(),
         "idgen": SnowflakeIDGenerator(),
         "hmac_hasher": HMACHasher(),
-        "pwd_hasher": Argon2PasswordHasher(),
+        "argon2_hasher": Argon2PasswordHasher(),
         "sms_service": LocalSMSService(),
         "event_queue": queue,
         "publisher": RedisPublisher(redis),
