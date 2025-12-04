@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from typing import AsyncGenerator, Callable
 
 import httpx
@@ -23,6 +24,7 @@ from fastup.infra import (
     orm_mapper,
     pydantic_config,
     pyjwt_service,
+    redis_client,
     redis_publisher,
     snowflake_idgen,
     sql_repositories,
@@ -32,10 +34,11 @@ from fastup.infra import (
 
 @pytest.fixture
 async def async_client(
-    bus_provider: Callable,
+    bus_provider: Callable, redis_provider: Callable
 ) -> AsyncGenerator[httpx.AsyncClient, None]:
     """Provides an async HTTP client for testing FastAPI endpoints."""
     app.app.dependency_overrides[deps.get_bus] = bus_provider
+    app.app.dependency_overrides[redis_client.redis_client_provider] = redis_provider
     async with httpx.AsyncClient(
         transport=httpx.ASGITransport(app=app.app), base_url="http://test"
     ) as client:
@@ -187,3 +190,14 @@ async def redis(
 def publisher(redis: Redis) -> services.Publisher:
     """Provide a RedisPublisher instance."""
     return redis_publisher.RedisPublisher(redis)
+
+
+@pytest.fixture
+def redis_provider(redis: Redis) -> Callable[[], Redis]:
+    """Provides a Redis client provider for dependency injection in tests."""
+
+    def get_redis_override() -> Redis:
+        logging.getLogger("redis").info("Providing test Redis client")
+        return redis
+
+    return get_redis_override

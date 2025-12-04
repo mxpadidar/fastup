@@ -1,14 +1,17 @@
 from typing import Annotated
 
 from fastapi.params import Depends
+from fastapi.responses import StreamingResponse
 from fastapi.routing import APIRouter
+from redis.asyncio.client import Redis
 
 from fastup.api import deps
-from fastup.api.v1 import req_models, resp_models
+from fastup.api.v1 import req_models, resp_models, views
 from fastup.core import commands, entities, enums
 from fastup.core.bus import MessageBus
 from fastup.infra.pydantic_config import PydanticConfig, get_config
 from fastup.infra.pyjwt_service import PyJWTService
+from fastup.infra.redis_client import redis_client_provider
 
 router = APIRouter()
 
@@ -59,3 +62,17 @@ async def verify_otp(
         sub=str(otp.id), typ="signup", ttl=config.signup_token_ttl
     )
     return token
+
+
+@router.get("/notifications")
+async def notifications_sse(redis: Annotated[Redis, Depends(redis_client_provider)]):
+    """SSE endpoint that streams real-time notifications.
+
+    The client keeps an open HTTP connection and receives events as they arrive
+    on the Redis notifications channel. The stream closes automatically if the
+    client disconnects or the server is shutting down.
+    """
+
+    return StreamingResponse(
+        views.stream_notifications(redis), media_type="text/event-stream"
+    )

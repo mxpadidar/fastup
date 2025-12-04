@@ -14,7 +14,12 @@ def main():
     logger = logging.getLogger(__name__)
     logger.info("Starting Server...")
 
-    uvicorn.run(app="fastup.api.app:app", log_config=None, reload=True)
+    uvicorn.run(
+        app="fastup.api.app:app",
+        log_config=None,
+        reload=True,
+        timeout_graceful_shutdown=2,
+    )
 
 
 if __name__ == "__main__":
