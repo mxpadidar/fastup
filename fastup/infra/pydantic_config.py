@@ -54,6 +54,14 @@ class PydanticConfig(BaseSettings):
     redis_port: int = 6379
     redis_db: int = 0
 
+    # --- CORS Configuration ---
+    cors_allow_origins: tuple = ("*",)
+    cors_allow_methods: tuple = ("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS")
+    cors_allow_headers: tuple = ("*",)
+    cors_allow_credentials: bool = False
+    cors_expose_headers: tuple = ()
+    cors_max_age: int = 600
+
     # --- Computed fields that implement the CoreConf protocol ---
     @property
     def otp_lifetime(self) -> datetime.timedelta:  # pragma: no cover

@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 import fastapi
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import clear_mappers
 
 from fastup.bootstrap import bootstrap
@@ -37,6 +38,16 @@ app = fastapi.FastAPI(
     lifespan=lifespan, title=config.app_name, version=config.version, debug=config.debug
 )
 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=config.cors_allow_origins,
+    allow_methods=config.cors_allow_methods,
+    allow_headers=config.cors_allow_headers,
+    allow_credentials=config.cors_allow_credentials,
+    expose_headers=config.cors_expose_headers,
+    max_age=config.cors_max_age,
+)
 
 app.include_router(router, prefix="/api/v1/fastup")
 
