@@ -17,19 +17,6 @@ from fastup.infra.tables.otps_table import otps
 
 
 @pytest.fixture
-def patch_otp_repo_get_for_update_timezone(monkeypatch: pytest.MonkeyPatch):
-    """Ensure SQLite’s naive datetimes do not break the timezone-sensitive handler."""
-    original = OtpSQLRepo.get_for_update
-
-    async def wrapper(*args, **kwargs):
-        otp = await original(*args, **kwargs)
-        otp.expires_at = otp.expires_at.replace(tzinfo=datetime.UTC)
-        return otp
-
-    monkeypatch.setattr(OtpSQLRepo, "get_for_update", wrapper)
-
-
-@pytest.fixture
 async def cmd(db_session: AsyncSession, hmac_hasher: HashService) -> VerifyOtpCommand:
     """Persist an OTP and return the matching verification command."""
     now = datetime.datetime.now(datetime.UTC)

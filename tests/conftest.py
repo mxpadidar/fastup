@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import logging
 import warnings
 from typing import AsyncGenerator, Callable
@@ -206,3 +207,16 @@ def redis_provider(redis: Redis) -> Callable[[], Redis]:
         return redis
 
     return get_redis_override
+
+
+@pytest.fixture
+def patch_otp_repo_get_for_update_timezone(monkeypatch: pytest.MonkeyPatch):
+    """Ensure SQLite’s naive datetimes do not break the timezone-sensitive handler."""
+    original = sql_repositories.OtpSQLRepo.get_for_update
+
+    async def wrapper(*args, **kwargs):
+        otp = await original(*args, **kwargs)
+        otp.expires_at = otp.expires_at.replace(tzinfo=datetime.UTC)
+        return otp
+
+    monkeypatch.setattr(sql_repositories.OtpSQLRepo, "get_for_update", wrapper)
