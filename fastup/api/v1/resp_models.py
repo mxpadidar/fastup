@@ -19,3 +19,13 @@ class TokenResp(pydantic.BaseModel):
     raw: str
     exp: datetime.datetime
     typ: str
+
+
+class UserResp(pydantic.BaseModel):
+    id: int
+    phone: str
+    fname: str | None = None
+    lname: str | None = None
+    sex: enums.UserSex
+    status: enums.UserStatus
+    created_at: datetime.datetime

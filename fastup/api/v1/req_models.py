@@ -17,3 +17,10 @@ class IssueOtpReq(pydantic.BaseModel):
 
 class VerifyOtpReq(pydantic.BaseModel):
     code: int
+
+
+class SignUpReq(pydantic.BaseModel):
+    sex: enums.UserSex
+    password: str
+    first_name: str | None = None
+    last_name: str | None = None

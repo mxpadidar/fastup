@@ -76,3 +76,28 @@ async def notifications_sse(redis: Annotated[Redis, Depends(redis_client_provide
     return StreamingResponse(
         views.stream_notifications(redis), media_type="text/event-stream"
     )
+
+
+@router.post("/accounts/signup", status_code=201, response_model=resp_models.UserResp)
+async def signup_account(
+    data: req_models.SignUpReq,
+    bus: Annotated[MessageBus, Depends(deps.get_bus)],
+    otp_id: Annotated[int, Depends(deps.get_otp_id)],
+    ipaddr: Annotated[str, Depends(deps.get_ipaddr)],
+):
+    """Create a new user account after OTP verification.
+
+    Completes the signup process by creating a user account with the provided
+    phone number and password. Requires a valid signup token obtained after OTP verification.
+    """
+    cmd = commands.SignupCommand(
+        otp_id=otp_id,
+        ipaddr=ipaddr,
+        password=data.password,
+        sex=data.sex,
+        first_name=data.first_name,
+        last_name=data.last_name,
+    )
+    user = await bus.handle(cmd)
+    assert isinstance(user, entities.User)
+    return user
