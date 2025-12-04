@@ -18,7 +18,7 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import clear_mappers
 
 from fastup.api import app, deps
-from fastup.core import bus, repositories, services, unit_of_work
+from fastup.core import bus, entities, enums, repositories, services, unit_of_work
 from fastup.core.config import Config
 from fastup.infra import (
     db,
@@ -39,11 +39,12 @@ warnings.filterwarnings("ignore", category=sa_exc.SAWarning)
 
 @pytest.fixture
 async def async_client(
-    bus_provider: Callable, redis_provider: Callable
+    bus_provider: Callable, redis_provider: Callable, token_service_provider: Callable
 ) -> AsyncGenerator[httpx.AsyncClient, None]:
     """Provides an async HTTP client for testing FastAPI endpoints."""
     app.app.dependency_overrides[deps.get_bus] = bus_provider
     app.app.dependency_overrides[redis_client.redis_client_provider] = redis_provider
+    app.app.dependency_overrides[deps.get_token_service] = token_service_provider
     async with httpx.AsyncClient(
         transport=httpx.ASGITransport(app=app.app), base_url="http://test"
     ) as client:
@@ -220,3 +221,40 @@ def patch_otp_repo_get_for_update_timezone(monkeypatch: pytest.MonkeyPatch):
         return otp
 
     monkeypatch.setattr(sql_repositories.OtpSQLRepo, "get_for_update", wrapper)
+
+
+@pytest.fixture
+def token_service_provider(
+    jwt_service: pyjwt_service.PyJWTService,
+) -> Callable[[], pyjwt_service.PyJWTService]:
+    """Provides a token service provider for dependency injection in tests."""
+
+    def get_token_service_override() -> pyjwt_service.PyJWTService:
+        logging.getLogger("token_service").info("Providing test JWT service")
+        return jwt_service
+
+    return get_token_service_override
+
+
+@pytest.fixture
+async def otp_token(
+    db_session: AsyncSession,
+    hmac_hasher: services.HashService,
+    jwt_service: pyjwt_service.PyJWTService,
+) -> pyjwt_service.Token:
+    """Persist an OTP and return the matching verification command."""
+    now = datetime.datetime.now(datetime.UTC)
+    otp = entities.Otp(
+        id=100,
+        phone="0912",
+        intent=enums.OtpIntent.SIGN_UP,
+        status=enums.OtpStatus.CONSUMED,
+        otp_hash=hmac_hasher.hash("1010"),
+        ipaddr="127.0.0.1",
+        expires_at=now + datetime.timedelta(minutes=1),
+    )
+    db_session.add(otp)
+    await db_session.commit()
+    return jwt_service.encode(
+        sub=str(otp.id), typ="signup", ttl=datetime.timedelta(minutes=15)
+    )
