@@ -21,6 +21,7 @@ class OtpStatus(enum.StrEnum):
     ISSUED = enum.auto()
     SENT = enum.auto()
     CONSUMED = enum.auto()
+    USED = enum.auto()
 
 
 class EventType(enum.StrEnum):

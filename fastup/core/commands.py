@@ -1,5 +1,7 @@
 import dataclasses
 
+from fastup.core import enums
+
 
 @dataclasses.dataclass(frozen=True)
 class Command:
@@ -25,3 +27,13 @@ class VerifyOtpCommand(Command):
     otp_id: int
     code: str
     ipaddr: str
+
+
+@dataclasses.dataclass(frozen=True)
+class SignupCommand(Command):
+    otp_id: int
+    ipaddr: str
+    password: str
+    sex: enums.UserSex
+    first_name: str | None
+    last_name: str | None
