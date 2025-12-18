@@ -41,6 +41,30 @@ async def issue_otp(
     return otp
 
 
+@router.post("/accounts/signup", status_code=201, response_model=resp_models.TokenResp)
+async def signup_user(
+    data: req_models.SignUpReq,
+    ipaddr: Annotated[str, Depends(deps.get_ipaddr)],
+    config: Annotated[PydanticConfig, Depends(get_config)],
+    bus: Annotated[MessageBus, Depends(deps.get_bus)],
+):
+    """
+    Initiate user signup by validating issued OTP.
+
+    Validates the provided OTP code for the given phone number. On successful
+    verification, returns access and refresh tokens for the user to proceed.
+    """
+    cmd = commands.SignupCommand(
+        otp_id=data.otp_id,
+        otp_code=str(data.otp_code),
+        ipaddr=ipaddr,
+        password=data.password,
+        sex=data.sex,
+        first_name=data.first_name,
+        last_name=data.last_name,
+    )
+
+
 @router.patch("/otps/{otp_id}", status_code=200, response_model=resp_models.TokenResp)
 async def verify_otp(
     otp_id: int,
@@ -101,3 +125,24 @@ async def signup_account(
     user = await bus.handle(cmd)
     assert isinstance(user, entities.User)
     return user
+
+
+# @router.post("/accounts/login", status_code=200, response_model=resp_models.TokenResp)
+# async def login_account(
+#     data: req_models.LoginReq,
+#     bus: Annotated[MessageBus, Depends(deps.get_bus)],
+#     token_service: Annotated[PyJWTService, Depends(deps.get_token_service)],
+#     config: Annotated[PydanticConfig, Depends(get_config)],
+# ):
+#     """Authenticate a user and issue an access token.
+
+#     Validates the provided phone number and password. On successful authentication,
+#     returns a JWT access token for authorized access to protected resources.
+#     """
+#     cmd = commands.LoginCommand(phone=data.phone, password=data.password)
+#     user = await bus.handle(cmd)
+#     assert isinstance(user, entities.User)
+#     token = token_service.encode(
+#         sub=str(user.id), typ="access", ttl=config.access_token_ttl
+#     )
+#     return token

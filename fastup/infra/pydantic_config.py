@@ -48,6 +48,8 @@ class PydanticConfig(BaseSettings):
     # --- JWT Configuration ---
     jwt_secret_key: str = secrets.token_urlsafe(32)
     signup_token_ttl_sec: int = 900  # 15 minutes
+    access_token_ttl_sec: int = 3600  # 1 hour
+    refresh_token_ttl_sec: int = 604800  # 7 days
 
     # --- REDIS Configuration ---
     redis_host: str = "localhost"
@@ -61,6 +63,10 @@ class PydanticConfig(BaseSettings):
     cors_allow_credentials: bool = False
     cors_expose_headers: tuple = ()
     cors_max_age: int = 600
+
+    def to_delta(self, seconds: int) -> datetime.timedelta:
+        """Helper method to convert seconds to timedelta."""
+        return datetime.timedelta(seconds=seconds)
 
     # --- Computed fields that implement the CoreConf protocol ---
     @property

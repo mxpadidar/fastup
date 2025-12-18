@@ -1,4 +1,5 @@
 from .issue_signup_otp_handler import handle_issue_signup_otp
+from .login_handler import handle_login
 from .send_otp_handler import handle_otp_issued_event
 from .signup_handler import handle_signup
 from .verify_otp_handler import handle_verify_otp
@@ -8,4 +9,5 @@ __all__ = [
     "handle_otp_issued_event",
     "handle_verify_otp",
     "handle_signup",
+    "handle_login",
 ]

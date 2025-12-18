@@ -37,3 +37,7 @@ class AccessDeniedExc(BaseExc):
 
 class AttemptLimitReached(BaseExc):
     message = "The maximum number of allowed attempts has been reached."
+
+
+class AuthFailedExc(BaseExc):
+    message = "Authentication failed due to invalid credentials."

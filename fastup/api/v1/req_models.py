@@ -15,12 +15,13 @@ class IssueOtpReq(pydantic.BaseModel):
     intent: enums.OtpIntent
 
 
-class VerifyOtpReq(pydantic.BaseModel):
-    code: int
-
-
 class SignUpReq(pydantic.BaseModel):
+    otp_code: int
     sex: enums.UserSex
     password: str
     first_name: str | None = None
     last_name: str | None = None
+
+
+class VerifyOtpReq(pydantic.BaseModel):
+    code: int

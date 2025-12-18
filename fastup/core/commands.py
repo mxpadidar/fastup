@@ -23,6 +23,17 @@ class IssueSignupOtpCommand(Command):
 
 
 @dataclasses.dataclass(frozen=True)
+class SignupCommand(Command):
+    otp_id: int
+    otp_code: str
+    ipaddr: str
+    password: str
+    sex: enums.UserSex
+    first_name: str | None
+    last_name: str | None
+
+
+@dataclasses.dataclass(frozen=True)
 class VerifyOtpCommand(Command):
     otp_id: int
     code: str
@@ -30,10 +41,7 @@ class VerifyOtpCommand(Command):
 
 
 @dataclasses.dataclass(frozen=True)
-class SignupCommand(Command):
-    otp_id: int
-    ipaddr: str
+class LoginCommand(Command):
+    phone: str
     password: str
-    sex: enums.UserSex
-    first_name: str | None
-    last_name: str | None
+    ipaddr: str
